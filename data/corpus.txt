@@ -1,0 +1,109 @@
+# =========================
+# PERPLEJIDAD
+# =========================
+La perplejidad mide qué tan bien un modelo de lenguaje predice una secuencia de palabras.
+La perplejidad es una métrica utilizada para evaluar modelos probabilísticos.
+Un modelo con menor perplejidad tiene mejor desempeño.
+La perplejidad indica el nivel de sorpresa del modelo ante una secuencia.
+La perplejidad evalúa la calidad del modelo de lenguaje.
+Una frase coherente tiene menor perplejidad que una frase incoherente.
+La perplejidad se calcula a partir de probabilidades de palabras.
+La perplejidad es importante en el procesamiento del lenguaje natural.
+
+# =========================
+# N-GRAMAS
+# =========================
+Los N-gramas son secuencias de palabras consecutivas en un texto.
+Un bigrama es una secuencia de dos palabras consecutivas.
+Un trigrama es una secuencia de tres palabras consecutivas.
+Los modelos de N-gramas calculan probabilidades basadas en frecuencias.
+Los N-gramas permiten predecir la siguiente palabra en una oración.
+Los modelos de lenguaje estadísticos utilizan N-gramas.
+El contexto en un modelo de N-gramas depende de palabras anteriores.
+Los N-gramas son fundamentales en modelos de lenguaje clásicos.
+
+# =========================
+# MODELOS DE LENGUAJE
+# =========================
+Un modelo de lenguaje predice la probabilidad de una palabra dada un contexto.
+Los modelos de lenguaje utilizan datos previos para generar texto.
+Los modelos pueden ser estadísticos o basados en redes neuronales.
+Los modelos modernos utilizan deep learning para mejorar la precisión.
+Los modelos de lenguaje son utilizados en asistentes virtuales.
+
+# =========================
+# TF-IDF
+# =========================
+TF-IDF mide la importancia de una palabra en un documento.
+TF significa frecuencia de término en un documento.
+IDF significa frecuencia inversa de documentos.
+TF-IDF combina frecuencia y rareza de palabras.
+Una palabra frecuente en un documento pero rara en el corpus tiene alto TF-IDF.
+TF-IDF se utiliza en motores de búsqueda.
+TF-IDF es útil para recuperar información relevante.
+El vector TF-IDF representa documentos numéricamente.
+
+# =========================
+# SIMILITUD
+# =========================
+La similitud del coseno mide la cercanía entre dos vectores.
+La similitud del coseno se usa en sistemas de búsqueda.
+Valores cercanos a uno indican alta similitud.
+Valores cercanos a cero indican baja similitud.
+La similitud del coseno es clave en recuperación de información.
+
+# =========================
+# ASR (RECONOCIMIENTO DE VOZ)
+# =========================
+El reconocimiento automático de voz convierte audio en texto.
+El ASR permite interpretar comandos hablados.
+Whisper es un modelo de reconocimiento de voz multilingüe.
+Los sistemas ASR pueden cometer errores en ambientes ruidosos.
+El ASR depende de la calidad del audio.
+El ASR es utilizado en asistentes virtuales y dictado por voz.
+
+# =========================
+# NLP
+# =========================
+El procesamiento de lenguaje natural analiza texto y extrae información.
+El NLP incluye tareas como tokenización y lematización.
+El NLP permite entender el lenguaje humano.
+El reconocimiento de entidades identifica nombres propios.
+Las entidades pueden ser personas, lugares o conceptos.
+El NLP se utiliza en chatbots y sistemas inteligentes.
+
+# =========================
+# WER
+# =========================
+El Word Error Rate mide la tasa de error en reconocimiento de voz.
+El WER compara el texto original con el texto transcripto.
+Un WER bajo indica mejor calidad de reconocimiento.
+El WER considera inserciones, eliminaciones y sustituciones.
+
+# =========================
+# TOKENIZACIÓN
+# =========================
+La tokenización divide el texto en palabras o unidades.
+La tokenización es el primer paso en NLP.
+Los tokens pueden ser palabras o símbolos.
+La tokenización facilita el análisis de texto.
+
+# =========================
+# BÚSQUEDA
+# =========================
+Los sistemas de búsqueda recuperan información relevante.
+La búsqueda utiliza modelos vectoriales.
+TF-IDF es una técnica común en búsqueda de texto.
+La similitud del coseno permite comparar documentos.
+Los motores de búsqueda ordenan resultados por relevancia.
+
+# =========================
+# EJEMPLOS (MUY IMPORTANTE)
+# =========================
+La perplejidad mide la calidad del modelo de lenguaje.
+El modelo de lenguaje predice la siguiente palabra.
+TF-IDF calcula la importancia de términos.
+Los N-gramas modelan secuencias de palabras.
+El ASR convierte voz en texto automáticamente.
+El NLP analiza y comprende el lenguaje humano.
+El WER mide errores en transcripción.
