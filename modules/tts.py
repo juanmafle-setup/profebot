@@ -1,10 +1,12 @@
 from gtts import gTTS
-import os
+import io
 
 def hablar(texto):
-    archivo = "respuesta.mp3"
-
+    """Genera audio MP3 en memoria y devuelve los bytes para st.audio"""
+    if not texto:
+        return None
     tts = gTTS(texto, lang="es")
-    tts.save(archivo)
-
-    os.system(f'start /wait {archivo}')
+    fp = io.BytesIO()
+    tts.write_to_fp(fp)
+    fp.seek(0)
+    return fp.read()
