@@ -1,10 +1,32 @@
 from gtts import gTTS
-import os
+import io
+import re
 
 def hablar(texto):
-    archivo = "respuesta.mp3"
+    
+    if not texto:
+        return None
 
-    tts = gTTS(texto, lang="es")
-    tts.save(archivo)
+    # Limpiar caracteres que molestan a gTTS
+    texto_limpio = re.sub(r"[`\'\"“”‘’]", "", texto)       # quitar comillas
+    texto_limpio = re.sub(r"[-–—]+", " ", texto_limpio)    # guiones → espacio
+    texto_limpio = re.sub(r"\s+", " ", texto_limpio)       # espacios múltiples
 
-    os.system(f'start /wait {archivo}')
+    try:
+        tts = gTTS(texto_limpio, lang="es")
+        fp = io.BytesIO()
+        tts.write_to_fp(fp)
+        fp.seek(0)
+        return fp.read()
+    except Exception:
+        # Si igual falla, probamos sin limpieza extrema
+        try:
+            tts = gTTS(texto, lang="es")
+            fp = io.BytesIO()
+            tts.write_to_fp(fp)
+            fp.seek(0)
+            return fp.read()
+        except Exception:
+            return None
+        
+        
