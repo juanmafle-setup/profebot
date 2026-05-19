@@ -1,0 +1,200 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+html, body, [class*="css"]{
+    font-family:'Inter',sans-serif;
+}
+
+/* FONDO */
+.stApp{
+    background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.14), transparent 30%),
+        radial-gradient(circle at top right, rgba(139,92,246,0.10), transparent 25%),
+        linear-gradient(180deg,#020617 0%, #0f172a 100%);
+    color:white;
+}
+
+/* CONTENEDOR */
+.block-container{
+    max-width:1200px;
+    padding-top:2rem;
+}
+
+/* SIDEBAR */
+section[data-testid="stSidebar"]{
+    background:#020617;
+    border-right:1px solid rgba(255,255,255,0.05);
+}
+
+/* TITULO */
+.main-title{
+    font-size:4rem;
+    font-weight:900;
+    margin-bottom:0;
+    background:linear-gradient(90deg,#60a5fa,#818cf8,#22d3ee);
+    -webkit-background-clip:text;
+    background-clip:text;                /* ← agregada propiedad estándar */
+    -webkit-text-fill-color:transparent;
+}
+
+.subtitle{
+    color:#94a3b8;
+    font-size:1.1rem;
+    margin-bottom:35px;
+}
+
+/* INPUT */
+.stTextInput input{
+    background:rgba(15,23,42,0.92)!important;
+    border:1px solid rgba(255,255,255,0.08)!important;
+    border-radius:18px!important;
+    color:white!important;
+    padding:16px!important;
+    font-size:16px!important;
+}
+
+.stTextInput input:focus{
+    border:1px solid #6366f1!important;
+    box-shadow:0 0 25px rgba(99,102,241,0.35)!important;
+}
+
+/* BOTONES */
+.stButton button{
+    border:none;
+    border-radius:18px;
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+    color:white;
+    font-weight:700;
+    padding:0.9rem;
+    transition:0.3s ease;
+    width:100%;
+}
+
+.stButton button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 20px rgba(124,58,237,0.35);
+}
+
+/* CARD RESPUESTA */
+.response-card{
+    background:rgba(15,23,42,0.88);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:24px;
+    padding:24px;
+    margin-top:10px;
+    box-shadow:0 10px 35px rgba(0,0,0,0.22);
+    backdrop-filter:blur(12px);
+}
+
+/* METRICAS */
+.metric-card{
+    background:rgba(15,23,42,0.88);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:24px;
+    padding:28px;
+    text-align:center;
+    min-height:270px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.18);
+    transition:0.3s ease;
+}
+
+.metric-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 0 30px rgba(99,102,241,0.2);
+}
+
+/* ICONOS */
+.metric-icon{
+    font-size:42px;
+    margin-bottom:10px;
+}
+
+/* TITULO METRICA */
+.metric-title{
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+/* TEXTO */
+.soft-text{
+    color:#94a3b8;
+    font-size:15px;
+    line-height:1.6;
+}
+
+/* BADGES */
+.entity-badge{
+    display:inline-block;
+    padding:10px 14px;
+    border-radius:999px;
+    background:rgba(99,102,241,0.16);
+    border:1px solid rgba(255,255,255,0.06);
+    color:#c4b5fd;
+    margin:5px;
+    font-size:14px;
+    font-weight:600;
+}
+
+/* NUMERO */
+.big-number{
+    font-size:56px;
+    font-weight:900;
+    margin-top:10px;
+    background:linear-gradient(90deg,#60a5fa,#a78bfa);
+    -webkit-background-clip:text;
+    background-clip:text;                /* ← agregada propiedad estándar */
+    -webkit-text-fill-color:transparent;
+}
+
+/* CHAT */
+.user-message{
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    padding:14px 18px;
+    border-radius:18px 18px 6px 18px;
+    margin-bottom:14px;
+    margin-left:auto;
+    width:fit-content;
+    max-width:70%;
+    color:white;
+    box-shadow:0 6px 20px rgba(37,99,235,0.2);
+}
+
+.bot-message{
+    background:rgba(15,23,42,0.92);
+    border:1px solid rgba(255,255,255,0.05);
+    padding:14px 18px;
+    border-radius:18px 18px 18px 6px;
+    margin-bottom:14px;
+    width:fit-content;
+    max-width:70%;
+    color:white;
+    box-shadow:0 6px 20px rgba(0,0,0,0.2);
+}
+
+/* DIVIDER */
+.divider{
+    height:1px;
+    background:rgba(255,255,255,0.06);
+    margin:35px 0;
+}
+
+/* EXPANDER PERSONALIZADO */
+.streamlit-expanderHeader {
+    background: rgba(99,102,241,0.1) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
+    color: #c4b5fd !important;
+    font-weight: 600 !important;
+}
+
+.streamlit-expanderContent {
+    background: rgba(15,23,42,0.5) !important;
+    border-radius: 0 0 12px 12px !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
+    padding: 15px !important;
+}
+
+/* OCULTAR MENÚ STREAMLIT */
+[data-testid="stHeader"] {
+    display: none;
+}
