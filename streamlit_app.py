@@ -9,7 +9,7 @@ def tokenizar(texto):
     return re.findall(r'\w+|[^\w\s]', texto)
 
 from modules.asr import transcribir
-from modules.search import buscar
+from modules.search import buscar, hay_respuesta, UMBRAL_SIMILITUD
 from modules.tts import hablar
 from modules.ngrams import ModeloNgramas
 from modules.nlp import procesar
@@ -138,7 +138,7 @@ if vista == "💬 Chat":
             return None
         try:
             with open("data/corpus.txt", "r", encoding="utf-8") as f:
-                corpus = f.readlines()
+                corpus = [l for l in f.readlines() if l.strip() and not l.strip().startswith("#")]
             modelo = ModeloNgramas(n=2, k=0.1)
             modelo.entrenar(corpus)
             return modelo
@@ -157,20 +157,11 @@ if vista == "💬 Chat":
     """, unsafe_allow_html=True)
 
     # RESPUESTA
-    def generar_respuesta(texto, resultados):
-        texto = texto.lower()
-        if "tf idf" in texto or "tf-idf" in texto:
-            return "TF-IDF mide la importancia de una palabra respecto a otros documentos."
-        if "tf" in texto:
-            return "TF representa la frecuencia de aparición de una palabra."
-        if "perplejidad" in texto:
-            return "La perplejidad mide qué tan bien un modelo predice una secuencia."
-        if "n-grama" in texto:
-            return "Un N-Grama es una secuencia de palabras utilizada en modelos de lenguaje."
+    def generar_respuesta(resultados):
         for r, score in resultados:
-            if not r.strip().startswith("#"):
+            if score >= UMBRAL_SIMILITUD:
                 return r.strip()
-        return "No encontré una respuesta clara."
+        return "No encontré información sobre ese tema en el corpus. Intentá reformular la pregunta."
 
     # INPUT ALINEADO
     st.markdown("## 💬 Consulta")
@@ -219,7 +210,7 @@ if vista == "💬 Chat":
                 resultados = buscar(texto_input)
 
                 status.update(label="💡 Generando respuesta...")
-                respuesta = generar_respuesta(texto_input, resultados)
+                respuesta = generar_respuesta(resultados)
 
                 status.update(label="📊 Analizando texto...")
                 data = procesar(texto_input)

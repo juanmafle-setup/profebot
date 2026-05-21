@@ -1,7 +1,7 @@
 from modules.mic import grabar_audio
 from modules.asr import transcribir
 from modules.nlp import procesar
-from modules.search import buscar
+from modules.search import buscar, UMBRAL_SIMILITUD
 from modules.tts import hablar
 from modules.db import crear_tabla, guardar
 from modules.ngrams import ModeloNgramas
@@ -13,36 +13,18 @@ import os
 def es_pregunta(texto):
     return "?" in texto or texto.lower().startswith(("que", "qué", "como", "cómo"))
 
-def generar_respuesta(texto, resultados):
-    texto = texto.lower()
-
-    if "tf idf" in texto or "tf-idf" in texto:
-        return "TF-IDF mide la importancia de una palabra en un documento en relación con otros documentos."
-
-    if "tf" in texto:
-        return "TF mide la frecuencia de una palabra en un documento."
-
-    if "perplejidad" in texto:
-        return "La perplejidad mide qué tan bien un modelo de lenguaje predice una secuencia de palabras."
-
-    if "n-grama" in texto:
-        return "Un N-grama es una secuencia de palabras utilizada para modelar lenguaje."
-
-    if "explica" in texto or "explicá" in texto:
-        return "TF (Term Frequency) indica cuántas veces aparece una palabra en un documento."
-
+def generar_respuesta(resultados):
     for r, score in resultados:
-        if not r.strip().startswith("#"):
+        if score >= UMBRAL_SIMILITUD:
             return r.strip()
-
-    return "No encontré una respuesta clara."
+    return "No encontré información sobre ese tema en el corpus. Intentá reformular la pregunta."
 
 # ===== INICIO =====
 
 crear_tabla()
 
 with open("data/corpus.txt", "r", encoding="utf-8") as f:
-    corpus = f.readlines()
+    corpus = [l for l in f.readlines() if l.strip() and not l.strip().startswith("#")]
 
 modelo_ng = ModeloNgramas(n=2, k=0.1)
 modelo_ng.entrenar(corpus)
@@ -102,7 +84,7 @@ while True:
 
     resultados = buscar(texto)
 
-    respuesta = generar_respuesta(texto, resultados)
+    respuesta = generar_respuesta(resultados)
 
     print("\n🤖 Respuesta:", respuesta)
 
