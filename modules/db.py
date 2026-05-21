@@ -246,3 +246,60 @@ def obtener_estadisticas_dashboard():
         "consultas_por_dia": consultas_por_dia,
         "top_conceptos": top_conceptos
     }
+
+def obtener_top_consultas(limite=10):
+    """Devuelve las consultas textuales más frecuentes."""
+    conn = conectar()
+    c = conn.cursor()
+    c.execute("""
+        SELECT texto_original, COUNT(*) as freq
+        FROM consultas
+        WHERE texto_original IS NOT NULL AND texto_original != ''
+        GROUP BY texto_original
+        ORDER BY freq DESC
+        LIMIT ?
+    """, (limite,))
+    resultados = c.fetchall()
+    conn.close()
+    return [{"texto": row["texto_original"], "frecuencia": row["freq"]} for row in resultados]
+
+
+def obtener_distribucion_categorias():
+    """Devuelve la distribución de conceptos detectados como categorías."""
+    conn = conectar()
+    c = conn.cursor()
+    c.execute("""
+        SELECT concepto_detectado, COUNT(*) as freq
+        FROM consultas
+        WHERE concepto_detectado IS NOT NULL AND concepto_detectado != ''
+        GROUP BY concepto_detectado
+        ORDER BY freq DESC
+    """)
+    resultados = c.fetchall()
+    conn.close()
+    return [{"categoria": row["concepto_detectado"], "frecuencia": row["freq"]} for row in resultados]
+
+
+def obtener_terminos_frecuentes(limite=30):
+    """Devuelve los términos más frecuentes de todas las consultas (para nube de palabras)."""
+    conn = conectar()
+    c = conn.cursor()
+    c.execute("SELECT texto_original FROM consultas WHERE texto_original IS NOT NULL AND texto_original != ''")
+    textos = [row["texto_original"] for row in c.fetchall()]
+    conn.close()
+    
+    # Tokenizamos y contamos palabras
+    from collections import Counter
+    import re
+    palabras = []
+    for texto in textos:
+        tokens = re.findall(r'\w+', texto.lower())
+        palabras.extend(tokens)
+    
+    # Filtramos stopwords básicas
+    stopwords = {'de', 'la', 'el', 'en', 'y', 'a', 'que', 'los', 'las', 'un', 'una', 'es', 'por', 'se', 'con', 'para', 'como', 'del', 'lo', 'al', 'su', 'o'}
+    palabras_filtradas = [p for p in palabras if p not in stopwords and len(p) > 2]
+    
+    contador = Counter(palabras_filtradas)
+    mas_comunes = contador.most_common(limite)
+    return [{"termino": termino, "frecuencia": freq} for termino, freq in mas_comunes]

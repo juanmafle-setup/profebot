@@ -194,7 +194,20 @@ section[data-testid="stSidebar"]{
     padding: 15px !important;
 }
 
-/* OCULTAR MENÚ STREAMLIT */
-[data-testid="stHeader"] {
-    display: none;
+
+.sidebar-restore-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(124,58,237,0.5);
+}
+/* Ocultar el botón cuando el sidebar está expandido */
+@media (min-width: 992px) {
+    [data-testid="stSidebar"][aria-expanded="true"] ~ .main .sidebar-restore-btn {
+        display: none;
+    }
+}
+/* Asegurar que el botón de colapso del sidebar (☰) nunca se oculte */
+button[data-testid="stSidebarCollapseButton"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
