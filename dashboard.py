@@ -5,6 +5,7 @@ import plotly.express as px
 import pandas as pd
 from modules.db import obtener_estadisticas_dashboard, obtener_historial, obtener_terminos_frecuentes
 from modules.evaluacion import evaluar_wer_batch, evaluar_busqueda
+from modules.config import cargar_config, guardar_config
 
 
 @st.cache_data(ttl=300)
@@ -32,6 +33,70 @@ def mostrar_dashboard():
     """Vista del dashboard docente con métricas reales."""
 
     st.markdown("## 📊 Dashboard Docente")
+    st.markdown("---")
+
+    # ── PANEL DE CONFIGURACIÓN DEL AGENTE ───────────────────────────
+    with st.expander("⚙️ Configuración del agente", expanded=False):
+        cfg = cargar_config()
+
+        st.markdown("### 🎛️ Ajustes de respuesta y modalidad")
+        col_cfg1, col_cfg2 = st.columns(2)
+
+        with col_cfg1:
+            nivel_opciones = {
+                "breve":    "Breve (1 oración)",
+                "normal":   "Normal (1–2 oraciones)",
+                "detallada":"Detallada (hasta 3 oraciones)",
+            }
+            nivel_actual = cfg.get("nivel_respuesta", "normal")
+            nivel_sel = st.selectbox(
+                "📝 Nivel de respuesta",
+                options=list(nivel_opciones.keys()),
+                format_func=lambda k: nivel_opciones[k],
+                index=list(nivel_opciones.keys()).index(nivel_actual),
+                help="Controla cuántas oraciones del corpus concatena la respuesta.",
+            )
+
+            entrada_opciones = {"texto": "Solo texto", "audio": "Solo audio", "ambos": "Texto y audio"}
+            entrada_actual = cfg.get("modo_entrada", "ambos")
+            entrada_sel = st.selectbox(
+                "🎤 Modo de entrada",
+                options=list(entrada_opciones.keys()),
+                format_func=lambda k: entrada_opciones[k],
+                index=list(entrada_opciones.keys()).index(entrada_actual),
+                help="Define qué modalidad de entrada habilita el agente.",
+            )
+
+        with col_cfg2:
+            salida_opciones = {"texto": "Solo texto", "audio": "Solo audio", "ambos": "Texto y audio"}
+            salida_actual = cfg.get("modo_salida", "ambos")
+            salida_sel = st.selectbox(
+                "🔊 Modo de salida",
+                options=list(salida_opciones.keys()),
+                format_func=lambda k: salida_opciones[k],
+                index=list(salida_opciones.keys()).index(salida_actual),
+                help="Define si el agente responde en texto, audio o ambos.",
+            )
+
+            # num_resultados derivado del nivel
+            num_map = {"breve": 1, "normal": 2, "detallada": 3}
+            num_actual = num_map.get(nivel_sel, 1)
+            st.info(
+                f"🔢 **Oraciones en respuesta:** {num_actual}  \n"
+                f"({'máximo 1' if num_actual == 1 else f'hasta {num_actual}'})"
+            )
+
+        if st.button("💾 Guardar configuración", use_container_width=True):
+            nueva_cfg = {
+                "nivel_respuesta": nivel_sel,
+                "num_resultados":  num_map.get(nivel_sel, 1),
+                "modo_entrada":    entrada_sel,
+                "modo_salida":     salida_sel,
+            }
+            guardar_config(nueva_cfg)
+            st.success("✅ Configuración guardada. Se aplicará en el próximo mensaje del chat.")
+            st.rerun()
+
     st.markdown("---")
 
     # ── Datos de la base ────────────────────────────────────────────

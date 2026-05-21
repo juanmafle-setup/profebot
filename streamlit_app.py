@@ -16,6 +16,7 @@ from modules.ngrams import ModeloNgramas
 from modules.nlp import procesar
 from modules.mic import grabar_audio
 from modules.db import crear_tablas, guardar_consulta, obtener_historial, limpiar_historial
+from modules.config import cargar_config
 
 crear_tablas()  # Aseguramos que las tablas existan al iniciar la app
 
@@ -163,15 +164,52 @@ if vista == "💬 Chat":
     </p>
     """, unsafe_allow_html=True)
 
-    # RESPUESTA
-    def generar_respuesta(resultados):
-        for r, score in resultados:
-            if score >= UMBRAL_SIMILITUD:
-                return r.strip()
-        return "No encontré información sobre ese tema en el corpus. Intentá reformular la pregunta."
+    # ── PATRONES POR INTENCIÓN (re-ranking sin LLM) ──────────────────
+    _PATRONES = {
+        "DEFINICION":  ["es ", "son ", "se define", "significa ", "consiste en",
+                        "se refiere", "se denomina", "se conoce como", "es un ", "es una "],
+        "CALCULO":     ["se calcula", "formula", "dividiendo", "multiplicando",
+                        "se obtiene", "es igual", "la ecuacion", "el valor de"],
+        "APLICACION":  ["se usa", "sirve para", "permite ", "se aplica",
+                        "se utiliza", "ayuda a", "es util", "facilita"],
+        "COMPARACION": ["diferencia", "mientras que", "a diferencia", "en cambio",
+                        "mayor que", "menor que", "en contraste", "por otro lado"],
+        "EJEMPLO":     ["por ejemplo", "como ejemplo", "si una", "si el",
+                        "supongamos", "imagina", "considera"],
+        "CONSULTA_GENERAL": [],
+    }
+
+    # RESPUESTA CONSCIENTE DE INTENCIÓN
+    def generar_respuesta(resultados, intencion="CONSULTA_GENERAL", num_resultados=1):
+        """
+        Re-rankea los resultados TF-IDF usando patrones léxicos según la intención
+        detectada y devuelve hasta `num_resultados` oraciones concatenadas.
+        No hay aprendizaje en línea — solo recuperación y re-ordenamiento.
+        """
+        candidatos = [(r.strip(), s) for r, s in resultados if s >= UMBRAL_SIMILITUD]
+        if not candidatos:
+            return "No encontré información sobre ese tema en el corpus. Intentá reformular la pregunta."
+
+        patrones = _PATRONES.get(intencion, [])
+
+        def bonus(doc):
+            doc_l = doc.lower()
+            return sum(1 for p in patrones if p in doc_l)
+
+        # Ordenar: primero por bonus de intención, luego por score TF-IDF
+        candidatos_reranked = sorted(
+            candidatos,
+            key=lambda x: (bonus(x[0]), x[1]),
+            reverse=True
+        )
+        top = [doc for doc, _ in candidatos_reranked[:num_resultados]]
+        return " ".join(top)
 
     # INPUT ALINEADO
     st.markdown("## 💬 Consulta")
+
+    _cfg_entrada = cargar_config()
+    _modo_entrada = _cfg_entrada.get("modo_entrada", "ambos")
 
     col1, col2 = st.columns([8, 1], vertical_alignment="center")
 
@@ -180,11 +218,17 @@ if vista == "💬 Chat":
             "",
             placeholder="Escribí tu pregunta...",
             label_visibility="collapsed",
-            key="input_texto"
+            key="input_texto",
+            disabled=(_modo_entrada == "audio"),
         )
 
     with col2:
-        hablar_btn = st.button("🎤", use_container_width=True)
+        hablar_btn = st.button(
+            "🎤",
+            use_container_width=True,
+            disabled=(_modo_entrada == "texto"),
+            help="Deshabilitado: modo entrada = solo texto" if _modo_entrada == "texto" else "Grabar audio",
+        )
 
     # AUTOCOMPLETADO CON N-GRAMAS
     if texto_input and modelo_ng:
@@ -223,14 +267,19 @@ if vista == "💬 Chat":
             try:
                 inicio = time.time()
 
+                # Leer config actual (sin cachear, para reflejar cambios del dashboard)
+                _cfg = cargar_config()
+                _num_res = _cfg.get("num_resultados", 1)
+                _modo_salida = _cfg.get("modo_salida", "ambos")
+
                 status.update(label="🔎 Buscando información...")
                 resultados = buscar(texto_input)
 
-                status.update(label="💡 Generando respuesta...")
-                respuesta = generar_respuesta(resultados)
-
                 status.update(label="🎯 Detectando intención...")
                 intencion = detectar_intencion(texto_input)
+
+                status.update(label="💡 Generando respuesta...")
+                respuesta = generar_respuesta(resultados, intencion=intencion, num_resultados=_num_res)
 
                 status.update(label="📊 Analizando texto...")
                 data = procesar(texto_input)
@@ -280,13 +329,16 @@ if vista == "💬 Chat":
             finally:
                 st.session_state.procesando = False
 
-        # TTS y respuesta visual
-        try:
-            audio_data = hablar(respuesta)
-            if audio_data:
-                st.audio(audio_data, format='audio/mp3')
-        except Exception as e:
-            st.warning(f"⚠️ No se pudo generar el audio: {e}")
+        # TTS y respuesta visual (respeta modo_salida de config)
+        _cfg_out = cargar_config()
+        _modo_salida_out = _cfg_out.get("modo_salida", "ambos")
+        if _modo_salida_out in ("audio", "ambos"):
+            try:
+                audio_data = hablar(respuesta)
+                if audio_data:
+                    st.audio(audio_data, format='audio/mp3')
+            except Exception as e:
+                st.warning(f"⚠️ No se pudo generar el audio: {e}")
 
         st.markdown("## 🤖 Respuesta")
         st.markdown(f"""
