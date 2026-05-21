@@ -62,7 +62,9 @@ def evaluar_wer_batch(frases):
 
 _INTENCIONES = {
     "DEFINICION":  ["que es", "qué es", "defini", "definí", "que significa",
-                    "qué significa", "que son", "qué son"],
+                    "qué significa", "que son", "qué son",
+                    "que mide", "qué mide", "que hace", "qué hace",
+                    "que representa", "qué representa", "que indica", "qué indica"],
     "CALCULO":     ["como se calcula", "cómo se calcula", "como funciona",
                     "cómo funciona", "como se mide", "cómo se mide",
                     "formula", "fórmula", "como se obtiene"],

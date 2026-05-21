@@ -156,6 +156,9 @@ Para que sirve la perplejidad: para comparar modelos de lenguaje y elegir el que
 Que significa una perplejidad baja: que el modelo predice bien las palabras del corpus de prueba y no se sorprende.
 Que significa una perplejidad alta: que el modelo se sorprende mucho ante las secuencias y las predice mal.
 Donde se calcula la perplejidad: siempre sobre el corpus de prueba, nunca sobre el de entrenamiento.
+Que mide la perplejidad: mide que tan bien el modelo de lenguaje predice secuencias de palabras nuevas, usando el corpus de prueba.
+Que evalua la perplejidad: evalua la calidad predictiva del modelo, un valor bajo indica que el modelo predice bien las palabras.
+Que expresa la perplejidad: expresa el nivel de sorpresa del modelo ante una nueva secuencia, cuanto menor es el valor mejor es el modelo.
 
 # =========================
 # CORPUS DE ENTRENAMIENTO Y PRUEBA

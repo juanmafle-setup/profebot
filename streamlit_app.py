@@ -167,7 +167,8 @@ if vista == "💬 Chat":
     # ── PATRONES POR INTENCIÓN (re-ranking sin LLM) ──────────────────
     _PATRONES = {
         "DEFINICION":  ["es ", "son ", "se define", "significa ", "consiste en",
-                        "se refiere", "se denomina", "se conoce como", "es un ", "es una "],
+                        "se refiere", "se denomina", "se conoce como", "es un ", "es una ",
+                        "mide que", "indica que", "representa ", "hace referencia"],
         "CALCULO":     ["se calcula", "formula", "dividiendo", "multiplicando",
                         "se obtiene", "es igual", "la ecuacion", "el valor de"],
         "APLICACION":  ["se usa", "sirve para", "permite ", "se aplica",
