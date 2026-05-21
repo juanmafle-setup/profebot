@@ -10,6 +10,7 @@ def tokenizar(texto):
 
 from modules.asr import transcribir
 from modules.search import buscar, hay_respuesta, UMBRAL_SIMILITUD
+from modules.evaluacion import detectar_intencion
 from modules.tts import hablar
 from modules.ngrams import ModeloNgramas
 from modules.nlp import procesar
@@ -212,6 +213,9 @@ if vista == "💬 Chat":
                 status.update(label="💡 Generando respuesta...")
                 respuesta = generar_respuesta(resultados)
 
+                status.update(label="🎯 Detectando intención...")
+                intencion = detectar_intencion(texto_input)
+
                 status.update(label="📊 Analizando texto...")
                 data = procesar(texto_input)
 
@@ -241,7 +245,7 @@ if vista == "💬 Chat":
                     "texto_transcripto": texto_input,
                     "texto_original": texto_input,
                     "concepto_detectado": ", ".join([ent[0] for ent in entidades_data]) if entidades_data else None,
-                    "intencion": None,
+                    "intencion": intencion,
                     "seccion_resultado_id": None,
                     "similitud_coseno": score_max,
                     "pp": pp,
