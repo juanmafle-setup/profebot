@@ -165,20 +165,26 @@ if vista == "💬 Chat":
     """, unsafe_allow_html=True)
 
     # ── PATRONES POR INTENCIÓN (re-ranking sin LLM) ──────────────────
+    # Patrones léxicos por intención.
+    # IMPORTANTE: deben ser específicos — no pueden aparecer en respuestas de otros temas.
+    # El bonus se suma al score TF-IDF con peso pequeño para no anular la relevancia temática.
     _PATRONES = {
-        "DEFINICION":  ["es ", "son ", "se define", "significa ", "consiste en",
-                        "se refiere", "se denomina", "se conoce como", "es un ", "es una ",
-                        "mide que", "indica que", "representa ", "hace referencia"],
+        "DEFINICION":  ["es ", "son ", "se define", "significa ",
+                        "consiste en", "se refiere", "se denomina",
+                        "se conoce como", "es un ", "es una "],
         "CALCULO":     ["se calcula", "formula", "dividiendo", "multiplicando",
                         "se obtiene", "es igual", "la ecuacion", "el valor de"],
         "APLICACION":  ["se usa", "sirve para", "permite ", "se aplica",
                         "se utiliza", "ayuda a", "es util", "facilita"],
         "COMPARACION": ["diferencia", "mientras que", "a diferencia", "en cambio",
                         "mayor que", "menor que", "en contraste", "por otro lado"],
-        "EJEMPLO":     ["por ejemplo", "como ejemplo", "si una", "si el",
-                        "supongamos", "imagina", "considera"],
+        "EJEMPLO":     ["por ejemplo", "como ejemplo", "supongamos",
+                        "imagina", "considera"],
         "CONSULTA_GENERAL": [],
     }
+    # Peso del bonus de intención sobre el score TF-IDF.
+    # Valor pequeño: el bonus solo *empuja* levemente, nunca reemplaza la relevancia temática.
+    _BONUS_PESO = 0.08
 
     # RESPUESTA CONSCIENTE DE INTENCIÓN
     def generar_respuesta(resultados, intencion="CONSULTA_GENERAL", num_resultados=1):
@@ -186,9 +192,13 @@ if vista == "💬 Chat":
         Re-rankea los resultados TF-IDF usando patrones léxicos según la intención
         detectada y devuelve hasta `num_resultados` oraciones concatenadas.
 
-        Filtro de coherencia: las oraciones adicionales (2ª, 3ª) solo se incluyen
-        si su score TF-IDF es al menos el 55% del score de la primera. Esto evita
-        concatenar oraciones de temas completamente distintos.
+        Score final = tfidf_score + _BONUS_PESO × coincidencias_patron
+        Esto mantiene la relevancia temática (TF-IDF) como factor dominante y usa
+        los patrones solo para desempatar o dar una pequeña ventaja a oraciones que
+        responden exactamente la intención.
+
+        Filtro de coherencia: 2ª y 3ª oración incluidas solo si score TF-IDF ≥ 55%
+        del score de la primera.
         No hay aprendizaje en línea — solo recuperación y re-ordenamiento.
         """
         candidatos = [(r.strip(), s) for r, s in resultados if s >= UMBRAL_SIMILITUD]
@@ -197,27 +207,27 @@ if vista == "💬 Chat":
 
         patrones = _PATRONES.get(intencion, [])
 
-        def bonus(doc):
-            doc_l = doc.lower()
-            return sum(1 for p in patrones if p in doc_l)
+        def score_final(doc, tfidf):
+            coincidencias = sum(1 for p in patrones if p in doc.lower())
+            return tfidf + _BONUS_PESO * coincidencias
 
-        # Ordenar: primero por bonus de intención, luego por score TF-IDF
+        # Ordenar por score combinado (TF-IDF domina, bonus solo desempata/empuja)
         candidatos_reranked = sorted(
             candidatos,
-            key=lambda x: (bonus(x[0]), x[1]),
+            key=lambda x: score_final(x[0], x[1]),
             reverse=True
         )
 
-        # Filtro de coherencia: el resto debe tener score ≥ 55% del top
-        top_score = candidatos_reranked[0][1]
-        umbral_coherencia = top_score * 0.55
+        # Filtro de coherencia por TF-IDF puro: 2ª y 3ª solo si ≥ 55% del top
+        top_tfidf = candidatos_reranked[0][1]
+        umbral_coherencia = top_tfidf * 0.55
 
         seleccionados = []
-        for doc, score in candidatos_reranked:
+        for doc, tfidf in candidatos_reranked:
             if len(seleccionados) == 0:
-                seleccionados.append(doc)          # siempre incluir la mejor
-            elif score >= umbral_coherencia:
-                seleccionados.append(doc)          # incluir solo si es coherente
+                seleccionados.append(doc)
+            elif tfidf >= umbral_coherencia:
+                seleccionados.append(doc)
             if len(seleccionados) >= num_resultados:
                 break
 
