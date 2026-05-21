@@ -184,6 +184,10 @@ if vista == "💬 Chat":
         """
         Re-rankea los resultados TF-IDF usando patrones léxicos según la intención
         detectada y devuelve hasta `num_resultados` oraciones concatenadas.
+
+        Filtro de coherencia: las oraciones adicionales (2ª, 3ª) solo se incluyen
+        si su score TF-IDF es al menos el 55% del score de la primera. Esto evita
+        concatenar oraciones de temas completamente distintos.
         No hay aprendizaje en línea — solo recuperación y re-ordenamiento.
         """
         candidatos = [(r.strip(), s) for r, s in resultados if s >= UMBRAL_SIMILITUD]
@@ -202,8 +206,21 @@ if vista == "💬 Chat":
             key=lambda x: (bonus(x[0]), x[1]),
             reverse=True
         )
-        top = [doc for doc, _ in candidatos_reranked[:num_resultados]]
-        return " ".join(top)
+
+        # Filtro de coherencia: el resto debe tener score ≥ 55% del top
+        top_score = candidatos_reranked[0][1]
+        umbral_coherencia = top_score * 0.55
+
+        seleccionados = []
+        for doc, score in candidatos_reranked:
+            if len(seleccionados) == 0:
+                seleccionados.append(doc)          # siempre incluir la mejor
+            elif score >= umbral_coherencia:
+                seleccionados.append(doc)          # incluir solo si es coherente
+            if len(seleccionados) >= num_resultados:
+                break
+
+        return " ".join(seleccionados)
 
     # INPUT ALINEADO
     st.markdown("## 💬 Consulta")
