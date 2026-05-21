@@ -77,30 +77,36 @@ st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
 with st.sidebar:
     st.markdown("# 🤖 PROFEBOT")
-    vista = st.radio("Seleccioná una vista", ["💬 Chat", "📊 Dashboard"])
+    vista = st.radio("Seleccioná una vista", ["💬 Chat", "🧩 Quiz", "📊 Dashboard"])
     st.markdown("---")
 
     if vista == "💬 Chat":
         with st.expander("🔧 ¿Qué herramientas usa?", expanded=False):
             st.markdown("""
-            **🎤 Whisper**  
+            **🎤 Whisper**
             Es el *oído* del asistente. Convierte tu voz en texto.
-                        
-            **🧠 spaCy**  
+
+            **🧠 spaCy**
             Es el *cerebro lingüístico*. Encuentra nombres, lugares y palabras clave.
-                        
-            **🔍 TF-IDF**  
+
+            **🔍 TF-IDF**
             Buscador inteligente que elige la información más relevante.
-                        
-            **📊 N-Gramas**  
+
+            **📊 N-Gramas**
             Predictor de palabras, como el sugeridor del teclado del celular.
-                        
-            **🔊 gTTS**  
+
+            **🔊 gTTS**
             La *voz* del asistente, para que puedas escuchar las respuestas.
-                        
-            **🐍 Python**  
+
+            **🐍 Python**
             El lenguaje con el que construimos todo el sistema.
             """)
+        st.markdown("---")
+        k_valor = st.slider(
+            "⚙️ Suavizado Add-k",
+            min_value=0.01, max_value=1.0, value=0.1, step=0.01,
+            help="Controla el suavizado del modelo de N-gramas. k=0.01 confía más en el corpus; k=1.0 es el suavizado de Laplace clásico."
+        )
         st.markdown("---")
         st.info("Asistente académico para Procesamiento del Lenguaje Natural y reconocimiento de voz.")
         if st.button("🗑️ Limpiar conversación"):
@@ -124,6 +130,8 @@ with st.sidebar:
                 file_name=f"conversacion_profebot_{datetime.now().strftime('%Y%m%d_%H%M')}.txt",
                 mime="text/plain"
             )
+    else:
+        k_valor = 0.1  # valor por defecto fuera del chat
 
 # =====================================================
 # VISTA CHAT
@@ -131,23 +139,21 @@ with st.sidebar:
 
 if vista == "💬 Chat":
 
-    # MODELO N-GRAMAS
+    # MODELO N-GRAMAS (se recarga si cambia k)
     @st.cache_resource
-    def cargar_modelo():
+    def cargar_modelo(k=0.1):
         if not os.path.exists("data/corpus.txt"):
-            st.error("❌ No se encontró el archivo data/corpus.txt.")
             return None
         try:
             with open("data/corpus.txt", "r", encoding="utf-8") as f:
                 corpus = [l for l in f.readlines() if l.strip() and not l.strip().startswith("#")]
-            modelo = ModeloNgramas(n=2, k=0.1)
+            modelo = ModeloNgramas(n=2, k=k)
             modelo.entrenar(corpus)
             return modelo
         except Exception as e:
-            st.error(f"❌ Error al cargar el modelo: {e}")
             return None
 
-    modelo_ng = cargar_modelo()
+    modelo_ng = cargar_modelo(k=k_valor)
 
     # HEADER
     st.markdown("""
@@ -179,6 +185,16 @@ if vista == "💬 Chat":
 
     with col2:
         hablar_btn = st.button("🎤", use_container_width=True)
+
+    # AUTOCOMPLETADO CON N-GRAMAS
+    if texto_input and modelo_ng:
+        tokens = texto_input.lower().split()
+        if tokens:
+            sugerencias_auto = modelo_ng.sugerir([tokens[-1]], top_n=5)
+            stopwords_auto = {"de", "la", "el", "en", "y", "a", "con", "que", "es", "un", "una"}
+            sugerencias_limpias = [p for p, _ in sugerencias_auto if p not in stopwords_auto][:4]
+            if sugerencias_limpias:
+                st.caption("💡 **Autocompletado:** " + "  ·  ".join(f"`{p}`" for p in sugerencias_limpias))
 
     # MICROFONO
     if hablar_btn:
@@ -328,11 +344,25 @@ if vista == "💬 Chat":
             <div style="color: #e2e8f0; font-size: 1.1rem; margin-top: 20px;">
                 ⏱️ {tiempo_ms} ms<br>
                 🧮 {cant_tokens} tokens<br>
-                🎯 score máx: {score_max:.2f}
+                🎯 score máx: {score_max:.2f}<br>
+                ⚙️ k = {k_valor}
             </div>
             <div class="soft-text" style="margin-top:15px;">Tokens: {tokens_preview}</div>
             </div>
             """, unsafe_allow_html=True)
+
+        # TABLA DE N-GRAMAS
+        if modelo_ng:
+            st.markdown("### 📊 Top-10 continuaciones del modelo de N-gramas")
+            tokens_ngrama = texto_input.lower().split()
+            contexto_ng = [tokens_ngrama[-1]] if tokens_ngrama else ["<s>"]
+            sugerencias_ng = modelo_ng.sugerir(contexto_ng, top_n=10)
+            import pandas as _pd
+            df_ng = _pd.DataFrame(
+                [(p, round(prob, 6)) for p, prob in sugerencias_ng],
+                columns=["Palabra siguiente", "Probabilidad"]
+            )
+            st.dataframe(df_ng, use_container_width=True, hide_index=True)
 
     # HISTORIAL
     if st.session_state.chat:
@@ -378,6 +408,98 @@ if vista == "💬 Chat":
 
     </div>
     """, unsafe_allow_html=True)
+
+# =====================================================
+# VISTA QUIZ
+# =====================================================
+
+elif vista == "🧩 Quiz":
+    import random
+
+    st.markdown("""
+    <h1 class="main-title">🧩 Quiz de Repaso</h1>
+    <p class="subtitle">Completá la oración con la palabra que falta</p>
+    """, unsafe_allow_html=True)
+
+    # Inicializar estado del quiz
+    for key, val in [("quiz_oracion", None), ("quiz_palabra", None),
+                     ("quiz_mostrar", False), ("quiz_correctas", 0), ("quiz_total", 0)]:
+        if key not in st.session_state:
+            st.session_state[key] = val
+
+    STOPWORDS_QUIZ = {"de", "la", "el", "en", "y", "a", "con", "que", "es",
+                      "un", "una", "los", "las", "por", "para", "se", "del",
+                      "al", "su", "como", "si", "no", "o", "e", "u"}
+
+    def nueva_pregunta():
+        with open("data/corpus.txt", "r", encoding="utf-8") as f:
+            lineas = [l.strip() for l in f
+                      if l.strip() and not l.strip().startswith("#")
+                      and len(l.strip().split()) >= 7]
+        linea = random.choice(lineas)
+        palabras = linea.split()
+        candidatos = [
+            (i, p) for i, p in enumerate(palabras)
+            if p.lower().rstrip(".,;:") not in STOPWORDS_QUIZ and len(p) > 3
+        ]
+        if not candidatos:
+            nueva_pregunta()
+            return
+        idx, correcta = random.choice(candidatos)
+        palabras[idx] = "___"
+        st.session_state.quiz_oracion  = " ".join(palabras)
+        st.session_state.quiz_palabra  = correcta.lower().rstrip(".,;:")
+        st.session_state.quiz_mostrar  = False
+
+    col_btn, col_score = st.columns([2, 1])
+    with col_btn:
+        if st.button("🎲 Nueva pregunta", use_container_width=True):
+            nueva_pregunta()
+    with col_score:
+        c = st.session_state.quiz_correctas
+        t = st.session_state.quiz_total
+        pct = f"{c/t:.0%}" if t > 0 else "—"
+        st.metric("Puntaje", f"{c} / {t}", pct)
+
+    if st.session_state.quiz_oracion is None:
+        nueva_pregunta()
+
+    st.markdown("---")
+    st.markdown("**Completá la oración:**")
+    st.markdown(
+        f"<div style='font-size:1.2rem; padding:16px; background:#1e293b; border-radius:10px; "
+        f"color:#e2e8f0; line-height:2;'>{st.session_state.quiz_oracion}</div>",
+        unsafe_allow_html=True
+    )
+    st.markdown("")
+
+    respuesta_quiz = st.text_input("✏️ Tu respuesta:", key="quiz_input",
+                                   placeholder="Escribí la palabra que falta...")
+
+    if st.button("✅ Verificar", use_container_width=True):
+        st.session_state.quiz_total += 1
+        st.session_state.quiz_mostrar = True
+        correcta = st.session_state.quiz_palabra
+        usuario  = respuesta_quiz.lower().strip().rstrip(".,;:")
+
+        if usuario == correcta:
+            st.session_state.quiz_correctas += 1
+            st.success(f"✅ ¡Correcto! La palabra era: **{correcta}**")
+        elif correcta.startswith(usuario) or usuario.startswith(correcta):
+            st.session_state.quiz_correctas += 1
+            st.warning(f"⚠️ ¡Muy cerca! La palabra exacta es: **{correcta}**")
+        else:
+            st.error(f"❌ Incorrecto. La respuesta correcta era: **{correcta}**")
+
+        # Mostrar la oración completa
+        oracion_completa = st.session_state.quiz_oracion.replace("___", f"**{correcta}**")
+        st.markdown(f"📖 Oración completa: *{oracion_completa}*")
+
+    st.markdown("---")
+    if st.button("🔄 Reiniciar puntaje"):
+        st.session_state.quiz_correctas = 0
+        st.session_state.quiz_total = 0
+        st.rerun()
 
 # =====================================================
 # VISTA DASHBOARD

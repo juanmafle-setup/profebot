@@ -439,3 +439,39 @@ El modulo re de Python permite usar expresiones regulares para buscar y reemplaz
 Las expresiones regulares se usan para limpiar texto eliminando caracteres especiales o formatos no deseados.
 Que son las expresiones regulares: son patrones que describen conjuntos de cadenas para buscar y manipular texto.
 Para que se usan las expresiones regulares en PLN: para limpiar texto, extraer patrones y normalizar formatos antes del analisis.
+
+# =========================
+# PREGUNTAS Y RESPUESTAS FRECUENTES DE LA MATERIA
+# =========================
+Que estudia la unidad 11 de la tecnicatura: estudia las tecnicas de procesamiento del habla incluyendo PLN, modelos de N-gramas, recuperacion de informacion y reconocimiento de voz.
+Que es spaCy: es una libreria de Python para PLN industrial que incluye modelos preentrenados para tokenizacion, NER y POS tagging en espanol.
+Como se instala spaCy para espanol: se instala con pip install spacy y luego se descarga el modelo con python -m spacy download es_core_news_sm.
+Que es scikit-learn: es una libreria de Python para aprendizaje automatico que incluye TfidfVectorizer y cosine_similarity para busqueda de informacion.
+Para que sirve TfidfVectorizer de scikit-learn: sirve para convertir una coleccion de textos en una matriz de pesos TF-IDF lista para calcular similitud.
+Que es NLTK: es la libreria Natural Language Toolkit de Python, clasica para PLN, que incluye corpus, tokenizadores y etiquetadores morfologicos.
+Como se mide la calidad de un modelo de lenguaje: se mide principalmente con la perplejidad calculada sobre un corpus de prueba independiente.
+Que diferencia hay entre ASR y TTS: ASR convierte audio en texto, TTS convierte texto en audio, son procesos inversos.
+Que hace Whisper de OpenAI: es un modelo de reconocimiento de voz que transcribe audio en texto en mas de 90 idiomas con alta precision.
+Como funciona gTTS: envia texto al servicio de Google Text-to-Speech y devuelve audio en formato MP3 listo para reproducir.
+Que es un corpus en PLN: es un conjunto grande de textos usado para entrenar, evaluar o ajustar modelos de lenguaje.
+Para que sirve un corpus en PLN: para estimar probabilidades de palabras, entrenar modelos de N-gramas y construir indices TF-IDF.
+Que es el vocabulario en un modelo de lenguaje: es el conjunto de todas las palabras distintas que aparecen en el corpus de entrenamiento.
+Que pasa con palabras fuera del vocabulario en N-gramas: tienen probabilidad cero sin suavizado, por eso se aplica Add-k para asignarles una probabilidad pequeña.
+Como se genera texto con un modelo de bigramas: se parte de una palabra inicial y se selecciona probabilisticamente la siguiente segun la distribucion del modelo.
+Que es el modelo de Markov en PLN: es un modelo que asume que la probabilidad de una palabra depende solo de un numero fijo de palabras anteriores.
+Cual es la diferencia entre modelo de lenguaje estadistico y neuronal: el estadistico usa conteos de N-gramas, el neuronal usa redes para capturar dependencias mas largas.
+Como se construye un indice invertido: se recorre el corpus, se extraen los terminos de cada documento y se mapea cada termino a la lista de documentos que lo contienen.
+Que ventaja tiene el indice invertido: permite buscar en miles de documentos de forma eficiente sin leer todos los textos completos en cada consulta.
+Que es la precision en un sistema de busqueda: es la proporcion de documentos recuperados que son realmente relevantes para la consulta del usuario.
+Que es el recall en un sistema de busqueda: es la proporcion de documentos relevantes del corpus que el sistema logro recuperar en los resultados.
+Como se calcula F1: como la media armonica de precision y recall, es decir 2 por precision por recall dividido por la suma de ambos.
+Que ventaja tiene F1 sobre precision y recall por separado: combina ambas metricas en un solo valor que penaliza los sistemas desequilibrados.
+Que tipos de errores mide el WER: mide inserciones, que son palabras agregadas de mas; eliminaciones, palabras omitidas; y sustituciones, palabras reemplazadas.
+Por que el WER puede superar el 100 por ciento: porque si hay muchas inserciones el numero de errores puede ser mayor que el numero de palabras de referencia.
+Que es el suavizado Add-k: es una generalizacion del suavizado de Laplace que suma un valor k menor que 1 en lugar de 1 para suavizar menos agresivamente.
+Como afecta el valor de k al modelo de N-gramas: un k alto suaviza mas y da mas probabilidad a N-gramas no vistos, un k bajo confía mas en los datos del corpus.
+Que es la entropia cruzada en modelos de lenguaje: es una medida de que tan bien el modelo predice los datos de prueba, relacionada directamente con la perplejidad.
+Que relacion hay entre entropia cruzada y perplejidad: la perplejidad es 2 elevado a la entropia cruzada del modelo sobre el corpus de prueba.
+Que es el fine-tuning en modelos de lenguaje: es el ajuste de un modelo preentrenado a una tarea especifica usando un corpus mas pequeno y especifico.
+Que significa que un chatbot sea retrieval-based: significa que elige respuestas de una base de conocimiento fija en lugar de generar texto nuevo.
+Por que ProfeBot no usa ChatGPT ni Claude: porque el proyecto requiere implementar los algoritmos propios de PLN sin depender de LLMs externos.
