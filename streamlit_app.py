@@ -299,7 +299,21 @@ if vista == "💬 Chat":
             if len(seleccionados) >= num_resultados:
                 break
 
-        return " ".join(seleccionados)
+        # Quitar el prefijo Q&A de cada oración antes de unirlas.
+        # "Que es un bigrama: es un par..." → "Es un par..."
+        # Solo se quita si la parte antes del ':' tiene ≤8 palabras y empieza
+        # con palabra interrogativa, para no tocar frases normales con ':'.
+        def _quitar_prefijo(doc):
+            if ':' not in doc:
+                return doc
+            pre, _, resto = doc.partition(':')
+            if len(pre.split()) <= 8 and pre.split() and pre.split()[0].lower() in _QA_INICIO:
+                resto = resto.strip()
+                return resto[0].upper() + resto[1:] if resto else doc
+            return doc
+
+        limpios = [_quitar_prefijo(d) for d in seleccionados]
+        return " ".join(limpios)
 
     # INPUT ALINEADO
     st.markdown("## 💬 Consulta")

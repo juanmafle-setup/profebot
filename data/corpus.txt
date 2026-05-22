@@ -196,6 +196,8 @@ Si un termino aparece en 2 de 10 documentos su IDF es el logaritmo de 10 dividid
 El TF-IDF fue propuesto como mejora del modelo booleano para representar mejor la relevancia de los documentos.
 Una palabra con TF-IDF cero no aporta informacion discriminativa en la busqueda.
 Que es TF-IDF: es una metrica que combina la frecuencia de un termino en el documento con su rareza en el corpus.
+Que mide el TF-IDF: mide la importancia de un termino dentro de un documento en relacion al corpus completo, combinando frecuencia local con rareza global.
+Que representa el TF-IDF: representa cuanto aporta cada palabra para distinguir un documento de los demas del corpus.
 Para que sirve TF-IDF: para representar documentos numericamente y encontrar cuales son mas relevantes para una consulta.
 Como se calcula TF: dividiendo el numero de veces que aparece el termino en el documento entre el total de palabras.
 Como se calcula IDF: como el logaritmo del cociente entre el numero total de documentos y los documentos que contienen el termino.
