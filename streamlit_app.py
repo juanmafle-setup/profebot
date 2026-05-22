@@ -164,61 +164,129 @@ if vista == "💬 Chat":
     </p>
     """, unsafe_allow_html=True)
 
-    # ── PATRONES POR INTENCIÓN (re-ranking sin LLM) ──────────────────
-    # Patrones léxicos por intención.
-    # IMPORTANTE: deben ser específicos — no pueden aparecer en respuestas de otros temas.
-    # El bonus se suma al score TF-IDF con peso pequeño para no anular la relevancia temática.
-    _PATRONES = {
-        "DEFINICION":  ["es ", "son ", "se define", "significa ",
-                        "consiste en", "se refiere", "se denomina",
-                        "se conoce como", "es un ", "es una "],
-        "CALCULO":     ["se calcula", "formula", "dividiendo", "multiplicando",
-                        "se obtiene", "es igual", "la ecuacion", "el valor de"],
-        "APLICACION":  ["se usa", "sirve para", "permite ", "se aplica",
-                        "se utiliza", "ayuda a", "es util", "facilita"],
-        "COMPARACION": ["diferencia", "mientras que", "a diferencia", "en cambio",
-                        "mayor que", "menor que", "en contraste", "por otro lado"],
-        "EJEMPLO":     ["por ejemplo", "como ejemplo", "supongamos",
-                        "imagina", "considera"],
+    # ── EXTRACCIÓN DE TÉRMINO CLAVE ─────────────────────────────────
+    # Palabras que se eliminan para quedarse con el concepto central de la pregunta.
+    _SW_EXTRACCION = {
+        "que", "qué", "como", "cómo", "cual", "cuál", "cuales", "cuáles",
+        "donde", "dónde", "cuando", "cuándo", "por", "con", "entre",
+        "es", "son", "un", "una", "el", "la", "los", "las", "del", "de",
+        "al", "en", "para", "a", "ante", "sobre",
+        "mide", "hace", "sirve", "calcula", "obtiene", "representa",
+        "indica", "define", "significa", "funciona", "refiere",
+        "evalua", "expresa", "determina",
+        "se", "y", "o", "e", "u", "ni",
+    }
+
+    def _extraer_termino(query):
+        """Extrae el concepto clave de la pregunta quitando stopwords de intención."""
+        q = re.sub(r'[¿?¡!.,;:]', '', query.lower()).strip()
+        tokens = [t for t in q.split() if t not in _SW_EXTRACCION and len(t) > 2]
+        return " ".join(tokens[:3])   # máximo 3 palabras clave
+
+    # ── BONUS DIRECTO: {término}: / {término} {verbo} ────────────────
+    # Verbos que indican que la oración responde directamente la intención.
+    _VERBOS_DIRECTOS = {
+        "DEFINICION":       ["es ", "son ", "mide ", "indica ", "consiste",
+                             "se define", "evalua ", "expresa ", "representa "],
+        "CALCULO":          ["se calcula", "es igual", "se obtiene", "formula"],
+        "APLICACION":       ["sirve para", "se usa", "permite ", "se aplica", "se utiliza"],
+        "COMPARACION":      ["a diferencia", "mientras que"],
+        "EJEMPLO":          ["por ejemplo", "como ejemplo"],
         "CONSULTA_GENERAL": [],
     }
-    # Peso del bonus de intención sobre el score TF-IDF.
-    # Valor pequeño: el bonus solo *empuja* levemente, nunca reemplaza la relevancia temática.
-    _BONUS_PESO = 0.08
 
-    # RESPUESTA CONSCIENTE DE INTENCIÓN
-    def generar_respuesta(resultados, intencion="CONSULTA_GENERAL", num_resultados=1):
+    # Palabras que indican inicio de pregunta Q&A (el corpus usa este formato)
+    _QA_INICIO = {"que", "qué", "como", "cómo", "para", "cual", "cuál",
+                  "cuales", "cuáles", "donde", "dónde", "por", "cuando", "cuándo"}
+
+    def _bonus_directo(termino, doc, intencion):
         """
-        Re-rankea los resultados TF-IDF usando patrones léxicos según la intención
-        detectada y devuelve hasta `num_resultados` oraciones concatenadas.
+        Devuelve un bonus grande si la oración es una respuesta directa al término.
 
-        Score final = tfidf_score + _BONUS_PESO × coincidencias_patron
-        Esto mantiene la relevancia temática (TF-IDF) como factor dominante y usa
-        los patrones solo para desempatar o dar una pequeña ventaja a oraciones que
-        responden exactamente la intención.
+        Lógica Q&A (bonus 0.5): el fragmento antes del ':' tiene ≤10 palabras,
+        EMPIEZA con palabra interrogativa (que/como/para/…) y contiene el término.
+        La comparación se normaliza (sin guiones/espacios) para igualar
+        'tfidf' con 'tf-idf' o 'similitud coseno' con 'similitud del coseno'.
+        Evita falsos positivos como 'El WER considera tres tipos de errores:'.
 
-        Filtro de coherencia: 2ª y 3ª oración incluidas solo si score TF-IDF ≥ 55%
-        del score de la primera.
-        No hay aprendizaje en línea — solo recuperación y re-ordenamiento.
+        Lógica sujeto-verbo (bonus 0.4): doc contiene '{término} {verbo_intención}'
+        (ej: 'La perplejidad mide que tan bien...').
+        """
+        if not termino or len(termino) < 3:
+            return 0.0
+        doc_l  = doc.lower()
+        _n     = lambda s: re.sub(r'[-\s]', '', s)
+        term_n = _n(termino)
+
+        # Formato Q&A real (empieza con palabra interrogativa)
+        if ':' in doc_l:
+            pregunta = doc_l.split(':')[0]
+            pwords   = pregunta.split()
+            if (len(pwords) <= 10
+                    and pwords                          # no vacío
+                    and pwords[0] in _QA_INICIO):      # empieza con interrogativa
+                preg_n    = _n(pregunta)
+                pwords_set = set(pwords)               # palabras exactas (evita substring)
+                tokens_ok = all(t in pwords_set for t in termino.split())
+                norm_ok   = len(term_n) >= 3 and term_n in preg_n
+                if tokens_ok or norm_ok:
+                    return 0.5
+
+        # Sujeto-verbo directo
+        verbos = _VERBOS_DIRECTOS.get(intencion, [])
+        for verbo in verbos:
+            if f"{termino} {verbo.strip()}" in doc_l:
+                return 0.4
+        return 0.0
+
+    # ── PATRONES SECUNDARIOS DE INTENCIÓN ───────────────────────────
+    # Bonus pequeño (×0.08): no reemplaza TF-IDF, solo desempata.
+    _PATRONES_INTENCION = {
+        "DEFINICION":       ["es ", "son ", "se define", "significa ",
+                             "consiste en", "se refiere", "se denomina",
+                             "se conoce como", "es un ", "es una "],
+        "CALCULO":          ["se calcula", "formula", "dividiendo", "multiplicando",
+                             "se obtiene", "es igual", "la ecuacion", "el valor de"],
+        "APLICACION":       ["se usa", "sirve para", "permite ", "se aplica",
+                             "se utiliza", "ayuda a", "facilita"],
+        "COMPARACION":      ["diferencia", "mientras que", "a diferencia", "en cambio",
+                             "mayor que", "menor que", "en contraste"],
+        "EJEMPLO":          ["por ejemplo", "como ejemplo", "supongamos", "considera"],
+        "CONSULTA_GENERAL": [],
+    }
+    _BONUS_INTENCION_PESO = 0.08   # techo: +0.08 por patrón encontrado
+
+    # ── RESPUESTA INTELIGENTE ────────────────────────────────────────
+    def generar_respuesta(resultados, intencion="CONSULTA_GENERAL",
+                          num_resultados=1, query=""):
+        """
+        Tres capas de puntuación (sin aprendizaje en línea):
+          1. TF-IDF score  — relevancia temática (dominante)
+          2. Bonus directo — +0.4/0.5 si la oración responde exactamente {término} + verbo
+          3. Bonus intención — +0.08 × patrones léxicos de la intención
+
+        La suma garantiza que TF-IDF siga siendo el factor principal.
+        El bonus directo identifica oraciones Q&A o sujeto-verbo precisas.
         """
         candidatos = [(r.strip(), s) for r, s in resultados if s >= UMBRAL_SIMILITUD]
         if not candidatos:
             return "No encontré información sobre ese tema en el corpus. Intentá reformular la pregunta."
 
-        patrones = _PATRONES.get(intencion, [])
+        termino   = _extraer_termino(query)
+        patrones  = _PATRONES_INTENCION.get(intencion, [])
 
-        def score_final(doc, tfidf):
-            coincidencias = sum(1 for p in patrones if p in doc.lower())
-            return tfidf + _BONUS_PESO * coincidencias
+        def score_total(doc, tfidf):
+            b_directo  = _bonus_directo(termino, doc, intencion)
+            b_intencion = sum(1 for p in patrones if p in doc.lower()) * _BONUS_INTENCION_PESO
+            return tfidf + b_directo + b_intencion
 
-        # Ordenar por score combinado (TF-IDF domina, bonus solo desempata/empuja)
         candidatos_reranked = sorted(
             candidatos,
-            key=lambda x: score_final(x[0], x[1]),
+            key=lambda x: score_total(x[0], x[1]),
             reverse=True
         )
 
-        # Filtro de coherencia por TF-IDF puro: 2ª y 3ª solo si ≥ 55% del top
+        # Filtro de coherencia: 2ª y 3ª oración solo si TF-IDF ≥ 55% del top
         top_tfidf = candidatos_reranked[0][1]
         umbral_coherencia = top_tfidf * 0.55
 
@@ -307,7 +375,8 @@ if vista == "💬 Chat":
                 intencion = detectar_intencion(texto_input)
 
                 status.update(label="💡 Generando respuesta...")
-                respuesta = generar_respuesta(resultados, intencion=intencion, num_resultados=_num_res)
+                respuesta = generar_respuesta(resultados, intencion=intencion,
+                                              num_resultados=_num_res, query=texto_input)
 
                 status.update(label="📊 Analizando texto...")
                 data = procesar(texto_input)

@@ -345,6 +345,7 @@ El WER se calcula dividiendo la suma de inserciones, eliminaciones y sustitucion
 El WER usa el mismo algoritmo que la distancia de Levenshtein pero operando sobre palabras en lugar de caracteres.
 Un WER por debajo de 5 por ciento se considera muy bueno en condiciones de habla clara.
 Los sistemas de reconocimiento de voz modernos como Whisper alcanzan WER muy bajos en condiciones ideales.
+Que es el WER: es la tasa de error de palabras que mide la precision del reconocimiento automatico del habla comparando la transcripcion con el texto de referencia.
 Como se calcula el WER: se suma el numero de inserciones, eliminaciones y sustituciones y se divide entre el total de palabras de referencia.
 Que es una sustitucion en el WER: es cuando el ASR transcribe una palabra incorrectamente reemplazandola por otra.
 Que es una insercion en el WER: es cuando el ASR agrega una palabra extra que no estaba en el texto original.
