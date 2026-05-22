@@ -103,11 +103,30 @@ with st.sidebar:
             El lenguaje con el que construimos todo el sistema.
             """)
         st.markdown("---")
-        k_valor = st.slider(
-            "⚙️ Suavizado Add-k",
-            min_value=0.01, max_value=1.0, value=0.1, step=0.01,
-            help="Controla el suavizado del modelo de N-gramas. k=0.01 confía más en el corpus; k=1.0 es el suavizado de Laplace clásico."
+
+        # ── MODO DE SUAVIZADO (3 opciones fijas) ──────────────────
+        # Radio en vez de slider → solo 3 modelos en cache, sin freeze al cambiar.
+        _MODOS_K = {
+            "📄 Tal cual el corpus":        0.01,
+            "⚖️ Equilibrado":               0.1,
+            "🤖 Formulado por el agente":   1.0,
+        }
+        _modo_sel = st.radio(
+            "🧮 Suavizado N-gramas",
+            options=list(_MODOS_K.keys()),
+            index=1,           # Equilibrado por defecto
+            help=(
+                "**Tal cual el corpus** (k=0.01): el modelo confía casi exclusivamente en "
+                "las frecuencias del corpus. Predicciones muy literales.\n\n"
+                "**Equilibrado** (k=0.1): balance entre corpus y generalización. "
+                "Recomendado para uso normal.\n\n"
+                "**Formulado por el agente** (k=1.0): suavizado de Laplace clásico. "
+                "Distribuye probabilidad más uniformemente, sugiriendo más variedad "
+                "en el autocompletado. El agente no aprende de las interacciones."
+            ),
         )
+        k_valor = _MODOS_K[_modo_sel]
+
         st.markdown("---")
         st.info("Asistente académico para Procesamiento del Lenguaje Natural y reconocimiento de voz.")
         if st.button("🗑️ Limpiar conversación"):
@@ -508,7 +527,7 @@ if vista == "💬 Chat":
                 ⏱️ {tiempo_ms} ms<br>
                 🧮 {cant_tokens} tokens<br>
                 🎯 score máx: {score_max:.2f}<br>
-                ⚙️ k = {k_valor}
+                ⚙️ k = {k_valor} ({_modo_sel.split()[1]})
             </div>
             <div class="soft-text" style="margin-top:15px;">Tokens: {tokens_preview}</div>
             </div>
