@@ -161,30 +161,27 @@ def _quitar_prefijo(doc):
     return doc
 
 
-def _continuar_ngramas(texto_base, modelo_ng, max_palabras=20):
+def _continuar_ngramas(texto_base, modelo_ng, max_palabras=8):
     """
-    Extiende texto_base generando palabras nuevas con el modelo de n-gramas (greedy).
-    El agente NO aprende de las interacciones — el modelo es estático (solo lee el corpus).
+    Extiende texto_base con hasta max_palabras nuevas generadas por el modelo de n-gramas.
+    Usa 8 palabras por defecto: suficiente para mostrar la predicción del modelo sin que
+    los bigrams pierdan coherencia (con 20 el texto se vuelve incoherente rápidamente).
 
-    Estrategia:
-      - Limpia el texto igual que el corpus (quita puntuación) para que los tokens
-        coincidan con el vocabulario del modelo entrenado.
-      - Toma la última palabra limpia como contexto inicial.
-      - Elige en cada paso la palabra más probable que no haya aparecido ya
-        (detección de ciclos), hasta max_palabras o token de fin de oración.
+    Limpia el texto igual que el corpus (sin puntuación) para que los tokens coincidan
+    con el vocabulario entrenado.  Detecta ciclos con un set de palabras visitadas.
+    Retorna texto_base sin cambios si no hay continuaciones disponibles.
     """
     if not modelo_ng or not texto_base.strip():
         return texto_base
 
-    # Limpiar igual que el corpus: solo letras, dígitos y espacios (sin puntuación).
-    clean   = re.sub(r'[^\w\sáéíóúñü]', '', texto_base.lower()).strip()
-    tokens  = clean.split()
+    clean    = re.sub(r'[^\w\sáéíóúñü]', '', texto_base.lower()).strip()
+    tokens   = clean.split()
     if not tokens:
         return texto_base
 
     contexto  = [tokens[-1]]
     extension = []
-    visitados = set(tokens[-3:])  # evita repetir las últimas palabras del ancla
+    visitados = set(tokens[-3:])  # bloquea las últimas 3 palabras del ancla
 
     for _ in range(max_palabras):
         sugerencias = modelo_ng.sugerir(contexto, top_n=8)
@@ -200,11 +197,50 @@ def _continuar_ngramas(texto_base, modelo_ng, max_palabras=20):
         contexto = [siguiente]
 
     if not extension:
-        return texto_base
+        return ""   # señal: no hay extensión disponible
 
     ext_text = " ".join(extension)
     base     = texto_base.rstrip(" .")
     return f"{base} {ext_text}."
+
+
+def _generar_desde_concepto(termino, modelo_ng, max_palabras=15):
+    """
+    Genera texto partiendo del concepto clave cuando _continuar_ngramas no puede
+    extender la respuesta (la última palabra no tiene continuaciones en el corpus).
+
+    Arranca desde el último token del término (ej: 'wer' → 'wer es una metrica…')
+    y genera una oración usando el modelo de n-gramas de forma greedy.
+    """
+    if not modelo_ng or not termino:
+        return None
+
+    tokens    = re.sub(r'[^\w\sáéíóúñü]', '', termino.lower()).split()
+    if not tokens:
+        return None
+
+    contexto  = [tokens[-1]]
+    generado  = list(tokens)
+    visitados = set(tokens)
+
+    for _ in range(max_palabras):
+        sugerencias = modelo_ng.sugerir(contexto, top_n=8)
+        candidatos  = [
+            (p, prob) for p, prob in sugerencias
+            if p not in {"</s>", "<s>"} and p not in visitados
+        ]
+        if not candidatos:
+            break
+        siguiente = candidatos[0][0]
+        generado.append(siguiente)
+        visitados.add(siguiente)
+        contexto = [siguiente]
+
+    if len(generado) <= len(tokens):
+        return None   # no se generó nada nuevo
+
+    result = " ".join(generado)
+    return result[0].upper() + result[1:] + "."
 
 
 def generar_respuesta(resultados, intencion="CONSULTA_GENERAL",
@@ -229,8 +265,12 @@ def generar_respuesta(resultados, intencion="CONSULTA_GENERAL",
         return "No encontré información sobre ese tema en el corpus. Intentá reformular la pregunta."
 
     # ── MODO 1: tal cual el corpus ───────────────────────────────────────────
+    # Siempre devuelve las 3 líneas con mayor similitud TF-IDF, sin ningún
+    # procesamiento: con prefijo Q&A si lo tienen, sin limpiar, sin re-rankear.
+    # Así el resultado SIEMPRE es visiblemente distinto del modo Equilibrado.
     if modo == "corpus":
-        return candidatos[0][0]   # línea exacta, sin stripping ni reformateo
+        top3 = [doc for doc, _ in candidatos[:3]]
+        return "\n".join(f"{i + 1}. {doc}" for i, doc in enumerate(top3))
 
     # ── MODOS 2 y 3: recuperación inteligente ───────────────────────────────
     termino  = _extraer_termino(query)
@@ -265,9 +305,17 @@ def generar_respuesta(resultados, intencion="CONSULTA_GENERAL",
     limpios = [_quitar_prefijo(d) for d in seleccionados]
     base    = " ".join(limpios)
 
-    # ── MODO 3: extiende el ancla con generación por n-gramas ───────────────
+    # ── MODO 3: generación con n-gramas ─────────────────────────────────────
+    # Intenta extender el final de la respuesta (8 palabras máx para mantener
+    # coherencia con bigrams). Si la última palabra no tiene continuaciones en
+    # el corpus, genera desde el concepto clave de la consulta como fallback.
     if modo == "agente":
-        return _continuar_ngramas(base, modelo_ng, max_palabras=20)
+        extendida = _continuar_ngramas(base, modelo_ng, max_palabras=8)
+        if extendida:
+            return extendida
+        # Fallback: generar desde el concepto (ej: "wer es una metrica que…")
+        desde_concepto = _generar_desde_concepto(termino, modelo_ng, max_palabras=15)
+        return desde_concepto if desde_concepto else base
 
     return base
 
@@ -579,11 +627,14 @@ if vista == "💬 Chat":
                 st.warning(f"⚠️ No se pudo generar el audio: {e}")
 
         st.markdown("## 🤖 Respuesta")
+        # En modo corpus la respuesta tiene saltos de línea (\n); los convertimos
+        # a <br> solo para el HTML — el texto plano guardado en DB y TTS queda limpio.
+        respuesta_html = respuesta.replace('\n', '<br>')
         st.markdown(f"""
         <div class="response-card">
         <b>🤖 ProfeBot • {hora}</b>
         <div style="margin-top:12px; line-height:1.7; font-size:17px;">
-        {respuesta}
+        {respuesta_html}
         </div>
         </div>
         """, unsafe_allow_html=True)
@@ -673,7 +724,7 @@ if vista == "💬 Chat":
                 st.markdown(f"""
                 <div class="bot-message">
                 <b>🤖 ProfeBot • {bot_hora}</b>
-                <div style="margin-top:8px;">{bot_msg}</div>
+                <div style="margin-top:8px;">{bot_msg.replace(chr(10), '<br>')}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
