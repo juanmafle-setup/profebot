@@ -48,11 +48,16 @@ class ModeloNgramas:
         texto  = limpiar(texto)
         tokens = ["<s>"] + texto.split() + ["</s>"]
         N      = len(tokens)
+        if N <= 1:          # texto vacío tras limpiar → perplejidad indefinida
+            return float("inf")
         log_prob = 0.0
         for i in range(len(tokens) - self.n + 1):
             contexto = tokens[i:i + self.n - 1]
             palabra  = tokens[i + self.n - 1]
-            log_prob += math.log(self.probabilidad(palabra, contexto))
+            prob = self.probabilidad(palabra, contexto)
+            # Guard: log(0) lanzaría ValueError; con Add-k y vocab>0 no debería
+            # ocurrir, pero se protege por si el vocabulario está vacío.
+            log_prob += math.log(prob) if prob > 0 else math.log(1e-10)
         return math.exp(-log_prob / N)
 
     def sugerir(self, contexto, top_n=5):

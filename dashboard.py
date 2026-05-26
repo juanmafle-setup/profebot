@@ -119,7 +119,8 @@ def mostrar_dashboard():
     with c2:
         st.metric("PP promedio", f"{stats['pp_promedio']:.2f}" if stats else "—")
     with c3:
-        wer_label = f"{wer_promedio:.1%}" if wer_promedio else "—"
+        # Usar 'is not None' para que 0.0 (WER perfecto) muestre "0.0%" y no "—"
+        wer_label = f"{wer_promedio:.1%}" if wer_promedio is not None else "—"
         st.metric("WER promedio", wer_label)
     with c4:
         st.metric("Tiempo prom. (ms)", f"{stats['tiempo_promedio_ms']:.0f}" if stats else "—")

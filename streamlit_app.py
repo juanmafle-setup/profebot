@@ -827,6 +827,16 @@ elif vista == "🧩 Quiz":
     if st.session_state.quiz_oracion is None:
         nueva_pregunta()
 
+    # Si el corpus estaba vacío o todas las líneas tienen < 7 palabras,
+    # quiz_oracion sigue siendo None → mostrar error en lugar de "None".
+    if not st.session_state.quiz_corpus:
+        st.error("⚠️ No se pudo cargar el corpus para el quiz. Verificá que `data/corpus.txt` exista.")
+        st.stop()
+
+    if st.session_state.quiz_oracion is None:
+        st.warning("No se encontraron oraciones válidas en el corpus. Probá con un corpus más extenso.")
+        st.stop()
+
     st.markdown("---")
     st.markdown("**Completá la oración:**")
     st.markdown(
