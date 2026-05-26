@@ -1,109 +1,483 @@
 # =========================
-# PERPLEJIDAD
+# PLN - PROCESAMIENTO DEL LENGUAJE NATURAL
 # =========================
-La perplejidad mide qué tan bien un modelo de lenguaje predice una secuencia de palabras.
-La perplejidad es una métrica utilizada para evaluar modelos probabilísticos.
-Un modelo con menor perplejidad tiene mejor desempeño.
-La perplejidad indica el nivel de sorpresa del modelo ante una secuencia.
-La perplejidad evalúa la calidad del modelo de lenguaje.
-Una frase coherente tiene menor perplejidad que una frase incoherente.
-La perplejidad se calcula a partir de probabilidades de palabras.
-La perplejidad es importante en el procesamiento del lenguaje natural.
+El Procesamiento del Lenguaje Natural es la rama de la Inteligencia Artificial que estudia la interaccion entre computadoras y el lenguaje humano.
+El PLN permite a las maquinas leer, interpretar, generar y responder en lenguajes naturales.
+NLP son las siglas en ingles de Natural Language Processing, equivalente al PLN en espanol.
+El NLP abarca tanto el analisis de texto escrito como el procesamiento de senales de audio del habla.
+Las aplicaciones del PLN incluyen traduccion automatica, chatbots, analisis de sentimientos y reconocimiento de voz.
+El lenguaje natural es dificil para las computadoras porque es ambiguo, cambia con el contexto y tiene excepciones.
+La ambiguedad es una de las principales dificultades del PLN ya que una misma palabra puede tener multiples significados.
+Google Translate y DeepL son ejemplos de traduccion automatica basada en PLN.
+El analisis de sentimientos detecta si un comentario o resena es positivo, negativo o neutro.
+Los sistemas de preguntas y respuestas como ChatGPT usan tecnicas avanzadas de PLN.
+El PLN se usa para detectar spam, categorizar noticias y extraer informacion de textos.
+La sintesis de voz y el reconocimiento de voz son aplicaciones del procesamiento del habla dentro del PLN.
+El PLN combina linguistica, estadistica y aprendizaje automatico para entender el lenguaje.
+Siri, Google Assistant y Alexa son asistentes virtuales que usan PLN para interpretar comandos de voz.
+El PLN permite a las computadoras resumir documentos largos de forma automatica.
+El PLN se aplica en sistemas de atencion al cliente automatizados y en bots de WhatsApp Business.
+Que es el PLN: es la disciplina que ensena a las computadoras a entender y procesar el lenguaje humano.
+Para que sirve el procesamiento del lenguaje natural: sirve para construir aplicaciones que entienden y generan texto o voz.
+Que es NLP: NLP es el acronimo en ingles de Natural Language Processing el procesamiento del lenguaje natural.
+Cuales son las aplicaciones del PLN: traduccion automatica, chatbots, analisis de sentimientos, reconocimiento de voz y resumen automatico.
+
+# =========================
+# ANALISIS MORFOLOGICO
+# =========================
+El analisis morfologico descompone las palabras en sus partes para extraer informacion linguistica.
+La tokenizacion divide el texto en unidades llamadas tokens que generalmente son palabras o signos de puntuacion.
+Un token es la unidad minima de analisis en PLN como una palabra o simbolo.
+La lematizacion reduce cada palabra a su forma base o lema para normalizar el vocabulario.
+El lema de corriendo, corre y corri es correr.
+El lema de mejores es bueno y el de comiendo es comer.
+El stemming es mas agresivo que la lematizacion y elimina sufijos mecanicamente para obtener la raiz.
+Con stemming, comiendo se reduce a com y jugando se reduce a jug.
+La diferencia entre stemming y lematizacion es que el stemming corta sufijos sin conocimiento linguistico.
+El POS Tagging asigna a cada palabra su categoria gramatical como sustantivo, verbo o adjetivo.
+El etiquetado morfologico permite saber si una palabra funciona como nombre, verbo, adjetivo o adverbio en la oracion.
+Las etiquetas POS comunes son NOUN para sustantivo, VERB para verbo, ADJ para adjetivo y ADV para adverbio.
+Las stopwords son palabras muy frecuentes que no aportan significado como de, la, el, y, en.
+Filtrar stopwords mejora la calidad del analisis porque elimina palabras que no aportan informacion relevante.
+spaCy es una libreria de Python para PLN industrial que realiza tokenizacion, lematizacion y POS tagging en un solo paso.
+NLTK es otra libreria clasica de Python para PLN que incluye corpus, tokenizadores y etiquetadores.
+La morfologia estudia la estructura interna de las palabras y sus variaciones flexivas.
+La flexion verbal en espanol es compleja porque un verbo puede tener decenas de formas distintas.
+El preprocesamiento de texto incluye tokenizacion, eliminacion de stopwords, lematizacion o stemming.
+La normalizacion de texto convierte el texto a minusculas y elimina caracteres especiales antes del analisis.
+Que es la tokenizacion: es el proceso de dividir un texto en palabras o unidades mas pequenas llamadas tokens.
+Que es la lematizacion: es reducir una palabra a su forma base o lema para normalizar el texto.
+Cual es la diferencia entre stemming y lematizacion: el stemming corta sufijos mecanicamente, la lematizacion usa conocimiento linguistico para encontrar el lema correcto.
+Que son las stopwords: son palabras muy comunes que se eliminan del analisis porque no aportan informacion relevante.
+Que es POS Tagging: es el etiquetado morfologico que asigna a cada token su categoria gramatical.
+Como se tokeniza una oracion: se divide el texto separando palabras por espacios y signos de puntuacion.
+
+# =========================
+# ANALISIS SINTACTICO
+# =========================
+El analisis sintactico determina la estructura gramatical de una oracion identificando sujeto, verbo y complementos.
+El parsing produce un arbol sintactico que muestra las relaciones jerarquicas entre las palabras de la oracion.
+El analisis de constituyentes divide la oracion en grupos jerarquicos llamados sintagmas.
+Un sintagma nominal es un grupo de palabras que funciona como sustantivo como el estudiante curioso.
+Un sintagma verbal es un grupo de palabras que funciona como predicado de la oracion.
+El analisis de dependencias establece relaciones directas entre palabras indicando cual depende de cual.
+Las Gramaticas Independientes del Contexto son la base formal del analisis sintactico computacional.
+Las Gramaticas de Clausulas Definidas se usan en programacion logica para analizar el lenguaje natural.
+El algoritmo CYK permite encontrar el arbol sintactico mas probable en tiempo cubico respecto a la longitud de la oracion.
+Las gramaticas probabilisticas asignan probabilidades a los distintos arboles posibles y eligen el mas probable.
+Los treebanks son corpus de oraciones con arboles sintacticos anotados manualmente usados para entrenar parsers.
+La ambiguedad sintactica ocurre cuando una oracion puede analizarse de mas de una forma gramaticalmente valida.
+Que es el parsing: es el analisis sintactico que determina la estructura gramatical de una oracion.
+Que es un arbol sintactico: es una representacion grafica de la estructura gramatical de una oracion.
+Que es una gramatica probabilistica: es una gramatica que asigna probabilidades a las reglas para resolver ambiguedades.
+
+# =========================
+# ANALISIS SEMANTICO Y NER
+# =========================
+El analisis semantico intenta capturar el significado de las palabras y oraciones mas alla de su estructura gramatical.
+El reconocimiento de entidades nombradas identifica y clasifica personas, organizaciones, lugares y fechas en el texto.
+NER significa Named Entity Recognition o Reconocimiento de Entidades Nombradas.
+La desambiguacion de sentido de palabras determina que significado tiene una palabra polisemica en su contexto.
+La resolucion de correferencias identifica cuando dos expresiones del texto se refieren al mismo elemento.
+El analisis de sentimientos extrae la actitud o emocion expresada en el texto.
+La extraccion de relaciones identifica relaciones semanticas entre entidades como trabaja en o nacio en.
+Las entidades nombradas pueden ser personas, organizaciones, lugares, fechas, cantidades o productos.
+WordNet es una ontologia lexica del ingles que organiza los conceptos en relaciones semanticas.
+La semantica distribucional sostiene que palabras con contextos similares tienen significados similares.
+Que es NER: es el reconocimiento de entidades nombradas como personas, lugares y organizaciones en el texto.
+Para que sirve el analisis semantico: para entender el significado real de las palabras y oraciones en su contexto.
+Que es la desambiguacion de sentido: es determinar que significado tiene una palabra con multiples acepciones segun el contexto.
 
 # =========================
 # N-GRAMAS
 # =========================
-Los N-gramas son secuencias de palabras consecutivas en un texto.
-Un bigrama es una secuencia de dos palabras consecutivas.
-Un trigrama es una secuencia de tres palabras consecutivas.
-Los modelos de N-gramas calculan probabilidades basadas en frecuencias.
-Los N-gramas permiten predecir la siguiente palabra en una oración.
-Los modelos de lenguaje estadísticos utilizan N-gramas.
-El contexto en un modelo de N-gramas depende de palabras anteriores.
-Los N-gramas son fundamentales en modelos de lenguaje clásicos.
+Los N-gramas son secuencias de palabras consecutivas extraidas de un texto.
+Un unigrama es una secuencia de una sola palabra considerada de forma independiente.
+Un bigrama es una secuencia de dos palabras consecutivas en el texto.
+Un trigrama es una secuencia de tres palabras consecutivas en el texto.
+Un 4-grama es una secuencia de cuatro palabras consecutivas.
+Los modelos de N-gramas calculan la probabilidad de una palabra dado el contexto de las palabras anteriores.
+El supuesto de Markov dice que la probabilidad de una palabra depende solo de las n-1 palabras anteriores, no de toda la historia.
+Los N-gramas se usan para predecir la siguiente palabra mas probable en una secuencia.
+Los modelos de lenguaje estadisticos se basan en N-gramas para estimar probabilidades de secuencias.
+Un modelo de bigramas calcula la probabilidad de cada palabra dado solo el contexto de la palabra inmediatamente anterior.
+Un modelo de trigramas usa las dos palabras anteriores como contexto para predecir la siguiente.
+Para construir un modelo de bigramas se cuentan las ocurrencias de pares de palabras consecutivas en el corpus.
+La probabilidad de un bigrama se calcula dividiendo el conteo del par por el conteo de la primera palabra.
+Un corpus mas grande permite estimar probabilidades de N-gramas con mayor precision.
+Los N-gramas de mayor orden capturan mas contexto pero requieren mas datos y tienen mas problemas de datos dispersos.
+El problema de los datos dispersos en N-gramas ocurre cuando muchos N-gramas del vocabulario no aparecen en el corpus.
+Que es un bigrama: es un par de dos palabras consecutivas usado en modelos de lenguaje estadisticos.
+Que es un N-grama: es una secuencia de N palabras consecutivas usada para modelar el lenguaje estadisticamente.
+Como funciona un modelo de N-gramas: calcula la probabilidad de cada palabra basandose en las N-1 palabras anteriores del contexto.
+Cual es la diferencia entre unigrama y bigrama: el unigrama considera cada palabra de forma independiente, el bigrama usa la palabra anterior como contexto.
+Para que sirven los N-gramas: para predecir palabras, calcular probabilidades de secuencias y evaluar modelos de lenguaje.
+Como se calcula la probabilidad de un bigrama: dividiendo el conteo del par de palabras por el conteo de la primera palabra en el corpus.
 
 # =========================
-# MODELOS DE LENGUAJE
+# SUAVIZADO
 # =========================
-Un modelo de lenguaje predice la probabilidad de una palabra dada un contexto.
-Los modelos de lenguaje utilizan datos previos para generar texto.
-Los modelos pueden ser estadísticos o basados en redes neuronales.
-Los modelos modernos utilizan deep learning para mejorar la precisión.
-Los modelos de lenguaje son utilizados en asistentes virtuales.
+El suavizado corrige el problema de las probabilidades cero en modelos de N-gramas.
+Si un N-grama no aparece en el corpus de entrenamiento su probabilidad estimada es cero sin suavizado.
+Una probabilidad cero en cualquier N-grama hace que toda la secuencia tenga probabilidad cero.
+El suavizado de Laplace tambien se llama Add-1 smoothing porque suma 1 a todos los conteos de N-gramas.
+El suavizado Add-1 suma 1 al numerador y el tamaño del vocabulario al denominador de la estimacion.
+Add-k smoothing generaliza el suavizado de Laplace sumando un valor k menor que 1 para suavizar menos agresivamente.
+El suavizado de Good-Turing re-estima los conteos usando la frecuencia de las frecuencias observadas.
+Kneser-Ney es uno de los mejores metodos de suavizado porque considera la diversidad de contextos de cada palabra.
+El backoff retrocede a un N-grama de menor orden cuando el N-grama de mayor orden tiene probabilidad cero.
+La interpolacion combina probabilidades de N-gramas de distintos ordenes con pesos que suman uno.
+El suavizado de Laplace cede demasiada probabilidad a eventos no vistos en vocabularios muy grandes.
+El suavizado es necesario porque ningun corpus puede contener todas las combinaciones posibles de palabras.
+Que es el suavizado de Laplace: es una tecnica que suma 1 a todos los conteos para evitar probabilidades cero en N-gramas.
+Para que sirve el suavizado: para que el modelo asigne probabilidad mayor que cero a N-gramas no vistos en el entrenamiento.
+Que es Add-1 smoothing: es el suavizado de Laplace que suma 1 al conteo del N-grama y el tamaño del vocabulario al denominador.
+Que es el backoff: es la estrategia de retroceder a un N-grama de menor orden cuando el de mayor orden no fue observado.
+Que es la interpolacion en modelos de lenguaje: es combinar las probabilidades de N-gramas de distintos ordenes con pesos ponderados.
+
+# =========================
+# PERPLEJIDAD
+# =========================
+La perplejidad mide que tan bien un modelo de lenguaje predice una secuencia de palabras nueva.
+Un modelo con menor perplejidad tiene mejor desempeno al predecir texto no visto.
+La perplejidad indica el nivel de sorpresa del modelo ante una nueva secuencia de palabras.
+Una frase coherente tiene menor perplejidad que una frase incoherente o aleatoria.
+La perplejidad se calcula como 2 elevado a la entropia cruzada entre el modelo y el texto de prueba.
+La formula de perplejidad es PP igual a 2 elevado a menos el promedio del logaritmo en base 2 de las probabilidades.
+La perplejidad se evalua siempre sobre el corpus de prueba, nunca sobre el corpus de entrenamiento.
+Un valor alto de perplejidad indica que el modelo no predice bien las secuencias del texto de prueba.
+Un valor bajo de perplejidad significa que el modelo asigna altas probabilidades a las palabras del texto.
+Cuanto mayor es el corpus de entrenamiento, menor suele ser la perplejidad del modelo.
+Comparar la perplejidad de dos modelos sobre el mismo corpus de prueba indica cual es mejor.
+Un modelo de trigramas suele tener menor perplejidad que un modelo de bigramas en el mismo corpus.
+La perplejidad es una metrica intrinseca de evaluacion de modelos de lenguaje, independiente de una tarea especifica.
+Como se calcula la perplejidad: es 2 elevado a menos el promedio del logaritmo en base 2 de las probabilidades de cada palabra.
+Para que sirve la perplejidad: para comparar modelos de lenguaje y elegir el que mejor predice secuencias nuevas.
+Que significa una perplejidad baja: que el modelo predice bien las palabras del corpus de prueba y no se sorprende.
+Que significa una perplejidad alta: que el modelo se sorprende mucho ante las secuencias y las predice mal.
+Donde se calcula la perplejidad: siempre sobre el corpus de prueba, nunca sobre el de entrenamiento.
+Que mide la perplejidad: mide que tan bien el modelo de lenguaje predice secuencias de palabras nuevas, usando el corpus de prueba.
+Que evalua la perplejidad: evalua la calidad predictiva del modelo, un valor bajo indica que el modelo predice bien las palabras.
+Que expresa la perplejidad: expresa el nivel de sorpresa del modelo ante una nueva secuencia, cuanto menor es el valor mejor es el modelo.
+
+# =========================
+# CORPUS DE ENTRENAMIENTO Y PRUEBA
+# =========================
+El corpus de entrenamiento se usa para estimar los parametros del modelo de lenguaje.
+El corpus de prueba se usa una sola vez para reportar el rendimiento final del modelo.
+El corpus de validacion se usa para ajustar hiperparametros y comparar modelos durante el desarrollo.
+Es obligatorio separar los datos en conjuntos independientes para evaluar correctamente el modelo.
+Usar el corpus de prueba durante el entrenamiento produce resultados enganosos y sobreajuste.
+Una division tipica es 80 por ciento para entrenamiento, 10 para validacion y 10 para prueba.
+El sobreajuste ocurre cuando el modelo aprende el corpus de entrenamiento de memoria pero falla en datos nuevos.
+Un corpus grande y diverso permite entrenar modelos mas generalizables.
+El corpus debe ser representativo del tipo de texto que el modelo va a procesar en produccion.
+Que es el corpus de entrenamiento: es el conjunto de datos usado para estimar los parametros del modelo.
+Para que sirve el corpus de prueba: para evaluar el rendimiento final del modelo sobre datos que nunca vio durante el entrenamiento.
+Por que es importante separar entrenamiento y prueba: para obtener una estimacion honesta del desempeno del modelo en datos nuevos.
 
 # =========================
 # TF-IDF
 # =========================
-TF-IDF mide la importancia de una palabra en un documento.
-TF significa frecuencia de término en un documento.
-IDF significa frecuencia inversa de documentos.
-TF-IDF combina frecuencia y rareza de palabras.
-Una palabra frecuente en un documento pero rara en el corpus tiene alto TF-IDF.
-TF-IDF se utiliza en motores de búsqueda.
-TF-IDF es útil para recuperar información relevante.
-El vector TF-IDF representa documentos numéricamente.
+TF-IDF mide la importancia de una palabra en un documento dentro de una coleccion de documentos.
+TF significa Term Frequency y mide cuantas veces aparece un termino en un documento especifico.
+IDF significa Inverse Document Frequency y mide que tan rara es la palabra en toda la coleccion.
+TF-IDF combina la frecuencia del termino con su rareza en el corpus multiplicando TF por IDF.
+Una palabra frecuente en un documento pero rara en el corpus tiene un TF-IDF alto.
+Las palabras muy comunes en todos los documentos tienen un IDF bajo y por lo tanto un TF-IDF bajo.
+Las stopwords tienen TF-IDF casi cero porque aparecen en todos los documentos de la coleccion.
+El TF se calcula dividiendo el numero de veces que aparece el termino entre el total de palabras del documento.
+El IDF se calcula como el logaritmo del cociente entre el numero total de documentos y los que contienen el termino.
+El vector TF-IDF representa un documento como una lista de pesos numericos, uno por cada termino del vocabulario.
+TF-IDF se usa en motores de busqueda para ordenar documentos por relevancia respecto a una consulta.
+La clase TfidfVectorizer de scikit-learn calcula TF-IDF automaticamente en Python.
+Si una palabra aparece 3 veces en un documento de 100 palabras su TF es 0.03.
+Si un termino aparece en 2 de 10 documentos su IDF es el logaritmo de 10 dividido 2 que es aproximadamente 1.6.
+El TF-IDF fue propuesto como mejora del modelo booleano para representar mejor la relevancia de los documentos.
+Una palabra con TF-IDF cero no aporta informacion discriminativa en la busqueda.
+Que es TF-IDF: es una metrica que combina la frecuencia de un termino en el documento con su rareza en el corpus.
+Que mide el TF-IDF: mide la importancia de un termino dentro de un documento en relacion al corpus completo, combinando frecuencia local con rareza global.
+Que representa el TF-IDF: representa cuanto aporta cada palabra para distinguir un documento de los demas del corpus.
+Para que sirve TF-IDF: para representar documentos numericamente y encontrar cuales son mas relevantes para una consulta.
+Como se calcula TF: dividiendo el numero de veces que aparece el termino en el documento entre el total de palabras.
+Como se calcula IDF: como el logaritmo del cociente entre el numero total de documentos y los documentos que contienen el termino.
+Por que las stopwords tienen TF-IDF bajo: porque aparecen en casi todos los documentos lo que hace que su IDF sea muy bajo.
 
 # =========================
-# SIMILITUD
+# SIMILITUD DEL COSENO
 # =========================
-La similitud del coseno mide la cercanía entre dos vectores.
-La similitud del coseno se usa en sistemas de búsqueda.
-Valores cercanos a uno indican alta similitud.
-Valores cercanos a cero indican baja similitud.
-La similitud del coseno es clave en recuperación de información.
+La similitud del coseno mide la cercania entre dos vectores calculando el coseno del angulo entre ellos.
+La similitud del coseno se usa para comparar documentos representados como vectores TF-IDF.
+Un valor de similitud del coseno igual a 1 indica maxima similitud, los vectores apuntan en la misma direccion.
+Un valor de similitud del coseno igual a 0 indica que los vectores son perpendiculares, sin similitud.
+Un valor de similitud del coseno cercano a 1 indica alta similitud entre dos documentos.
+Un valor de similitud del coseno cercano a 0 indica que los documentos no comparten vocabulario relevante.
+La similitud del coseno es independiente de la longitud de los documentos, solo importa la direccion del vector.
+La similitud del coseno es clave en recuperacion de informacion y sistemas de busqueda semantica.
+Para encontrar el documento mas relevante a una consulta se elige el que tiene mayor similitud del coseno.
+La formula de similitud del coseno es el producto punto de los vectores dividido por el producto de sus normas.
+La similitud del coseno siempre devuelve un valor entre 0 y 1 cuando los vectores tienen valores no negativos.
+Un score de similitud del coseno por encima de 0.1 generalmente indica alguna relacion relevante entre documentos.
+Que es la similitud del coseno: es una medida de similitud entre dos vectores que calcula el coseno del angulo entre ellos.
+Por que se usa la similitud del coseno: porque es independiente de la longitud del documento y funciona bien con vectores TF-IDF.
+Que valor de similitud del coseno indica alta relevancia: un valor cercano a 1 indica alta similitud entre el documento y la consulta.
 
 # =========================
-# ASR (RECONOCIMIENTO DE VOZ)
+# MODELO DE ESPACIO VECTORIAL
 # =========================
-El reconocimiento automático de voz convierte audio en texto.
-El ASR permite interpretar comandos hablados.
-Whisper es un modelo de reconocimiento de voz multilingüe.
-Los sistemas ASR pueden cometer errores en ambientes ruidosos.
-El ASR depende de la calidad del audio.
-El ASR es utilizado en asistentes virtuales y dictado por voz.
+El Modelo de Espacio Vectorial representa documentos y consultas como vectores en un espacio de alta dimension.
+En el Modelo de Espacio Vectorial cada dimension corresponde a un termino del vocabulario.
+El Modelo de Espacio Vectorial supera al modelo booleano porque permite ranking por relevancia.
+VSM son las siglas en ingles de Vector Space Model, el Modelo de Espacio Vectorial.
+La representacion vectorial de documentos permite comparar su similitud usando distancias o angulos.
+El modelo booleano recupera documentos usando operadores AND, OR y NOT pero no ordena por relevancia.
+El Modelo de Espacio Vectorial con TF-IDF es la base de los motores de busqueda clasicos.
+Que es el Modelo de Espacio Vectorial: es un modelo que representa documentos como vectores para compararlos por similitud.
+Cual es la ventaja del VSM sobre el modelo booleano: el VSM ordena los resultados por relevancia en lugar de solo devolver si o no.
 
 # =========================
-# NLP
+# RECUPERACION DE INFORMACION
 # =========================
-El procesamiento de lenguaje natural analiza texto y extrae información.
-El NLP incluye tareas como tokenización y lematización.
-El NLP permite entender el lenguaje humano.
-El reconocimiento de entidades identifica nombres propios.
-Las entidades pueden ser personas, lugares o conceptos.
-El NLP se utiliza en chatbots y sistemas inteligentes.
+La recuperacion de informacion consiste en encontrar documentos relevantes ante una consulta del usuario.
+Un sistema de recuperacion de informacion tiene coleccion de documentos, consulta del usuario y modelo de recuperacion.
+El indice invertido es una estructura que mapea cada termino a la lista de documentos donde aparece.
+El modelo booleano recupera documentos usando operadores logicos AND, OR y NOT sobre los terminos.
+El modelo de espacio vectorial representa documentos y consultas como vectores y usa similitud del coseno para ordenarlos.
+PageRank mide la importancia de una pagina web contando cuantas paginas importantes apuntan a ella.
+HITS es otro algoritmo de analisis de hipervinculos que distingue entre paginas hub y paginas autoridad.
+Una pagina autoridad en HITS es citada por muchos hubs relevantes sobre un tema.
+Una pagina hub en HITS apunta a muchas paginas autoridad sobre un tema.
+La evaluacion de sistemas de recuperacion de informacion usa metricas de precision y recall.
+El indice invertido permite buscar eficientemente sin recorrer todos los documentos de la coleccion.
+Que es un indice invertido: es una estructura que para cada palabra guarda la lista de documentos donde aparece.
+Que es el modelo booleano: es un modelo que usa operadores logicos AND, OR, NOT para recuperar documentos.
+Que es PageRank: es un algoritmo que mide la importancia de una pagina web por la cantidad y calidad de enlaces que la apuntan.
 
 # =========================
-# WER
+# PRECISION Y RECALL
 # =========================
-El Word Error Rate mide la tasa de error en reconocimiento de voz.
-El WER compara el texto original con el texto transcripto.
-Un WER bajo indica mejor calidad de reconocimiento.
-El WER considera inserciones, eliminaciones y sustituciones.
+La precision mide que proporcion de los documentos recuperados son realmente relevantes para la consulta.
+El recall mide que proporcion de los documentos relevantes totales fueron efectivamente recuperados por el sistema.
+Un sistema con alta precision recupera pocos documentos pero casi todos son relevantes.
+Un sistema con alto recall recupera la mayoria de los documentos relevantes aunque incluya algunos irrelevantes.
+Existe un equilibrio entre precision y recall: mejorar uno suele reducir el otro.
+La metrica F1 combina precision y recall en un solo valor calculando su media armonica.
+La formula de F1 es 2 multiplicado por la precision por el recall dividido por la suma de ambos.
+La precision perfecta es 1.0 y significa que todos los documentos recuperados son relevantes.
+El recall perfecto es 1.0 y significa que se recuperaron todos los documentos relevantes de la coleccion.
+Si el sistema no devuelve ningun resultado incorrecto tiene precision 1 pero puede tener recall bajo.
+Si el sistema devuelve todos los documentos de la coleccion tiene recall 1 pero precision muy baja.
+Que es la precision en recuperacion de informacion: es la proporcion de documentos recuperados que son relevantes.
+Que es el recall: es la proporcion de documentos relevantes que el sistema logro recuperar.
+Cual es la diferencia entre precision y recall: la precision mide la calidad de lo recuperado, el recall mide la cobertura de los relevantes.
+Que es F1: es la media armonica de precision y recall que combina ambas metricas en un solo valor.
 
 # =========================
-# TOKENIZACIÓN
+# ASR - RECONOCIMIENTO DE VOZ
 # =========================
-La tokenización divide el texto en palabras o unidades.
-La tokenización es el primer paso en NLP.
-Los tokens pueden ser palabras o símbolos.
-La tokenización facilita el análisis de texto.
+El reconocimiento automatico de voz convierte senales de audio en texto escrito.
+ASR significa Automatic Speech Recognition o Reconocimiento Automatico del Habla.
+Un sistema ASR captura el audio, extrae caracteristicas acusticas y decodifica las palabras mas probables.
+Whisper es un modelo de reconocimiento de voz multilingue de codigo abierto desarrollado por OpenAI.
+Whisper fue entrenado con 680 mil horas de audio y puede transcribir mas de 90 idiomas incluyendo espanol.
+La libreria SpeechRecognition de Python facilita el uso de distintos motores ASR como Google o Sphinx.
+Los sistemas ASR cometen mas errores en ambientes ruidosos o con acentos poco comunes en el entrenamiento.
+El ASR depende de la calidad del audio, la claridad del habla y el modelo acustico utilizado.
+Google Speech-to-Text es una API popular para reconocimiento de voz que soporta espanol con el codigo es-AR.
+El ASR se usa en asistentes virtuales, dictado por voz, transcripcion de reuniones y subtitulado automatico.
+El modelo acustico en ASR asigna probabilidades a fonemas dado el espectro de frecuencias observado.
+El decodificador del ASR combina el modelo acustico y el modelo de lenguaje para encontrar la secuencia mas probable.
+La frecuencia de muestreo estandar para voz en sistemas ASR es de 16 kilohercios.
+Que es el ASR: es el reconocimiento automatico de voz que convierte audio en texto escrito.
+Como funciona el reconocimiento de voz: captura el audio, extrae caracteristicas acusticas y busca la secuencia de palabras mas probable.
+Que es Whisper: es un modelo de reconocimiento de voz multilingue de OpenAI entrenado con 680 mil horas de audio.
+Por que falla el ASR en ambientes ruidosos: porque el ruido de fondo distorsiona las caracteristicas acusticas y confunde al modelo.
 
 # =========================
-# BÚSQUEDA
+# MFCC - COEFICIENTES CEPSTRALES
 # =========================
-Los sistemas de búsqueda recuperan información relevante.
-La búsqueda utiliza modelos vectoriales.
-TF-IDF es una técnica común en búsqueda de texto.
-La similitud del coseno permite comparar documentos.
-Los motores de búsqueda ordenan resultados por relevancia.
+Los coeficientes MFCC son la representacion acustica estandar para el procesamiento del habla.
+MFCC significa Mel-Frequency Cepstral Coefficients o Coeficientes Cepstrales en Frecuencia Mel.
+Los MFCC se obtienen aplicando FFT, un banco de filtros Mel y la Transformada del Coseno Discreta.
+La escala Mel imita la percepcion humana del sonido agrupando frecuencias como las percibe el oido humano.
+El proceso de obtencion de MFCC divide la senal en ventanas cortas de 20 a 30 milisegundos con solapamiento.
+El pre-enfasis en MFCC aplica un filtro para realzar las frecuencias altas de la senal de voz.
+La funcion de ventana Hamming se aplica a cada frame para reducir los efectos de borde antes de la FFT.
+La FFT calcula el espectro de frecuencias de cada frame de la senal de voz.
+El banco de filtros Mel aplica filtros triangulares distribuidos en escala Mel sobre el espectro de frecuencias.
+La DCT convierte las energias del banco de filtros en los coeficientes cepstrales, tipicamente se usan 13.
+Los MFCC se usan como entrada a los modelos acusticos en sistemas de reconocimiento de voz.
+La libreria librosa de Python permite calcular MFCC de archivos de audio facilmente.
+Que son los MFCC: son coeficientes que representan el espectro acustico de la voz en escala Mel para analisis del habla.
+Para que se usan los MFCC: para representar el audio de voz de forma compacta como entrada al modelo de reconocimiento.
+Que es la escala Mel: es una escala de frecuencias que imita la percepcion auditiva humana mas sensible a bajas frecuencias.
 
 # =========================
-# EJEMPLOS (MUY IMPORTANTE)
+# TTS - SINTESIS DE VOZ
 # =========================
-La perplejidad mide la calidad del modelo de lenguaje.
-El modelo de lenguaje predice la siguiente palabra.
-TF-IDF calcula la importancia de términos.
-Los N-gramas modelan secuencias de palabras.
-El ASR convierte voz en texto automáticamente.
-El NLP analiza y comprende el lenguaje humano.
-El WER mide errores en transcripción.
+La sintesis de voz convierte texto escrito en audio hablado de forma automatica.
+TTS significa Text-to-Speech, es decir, de texto a voz.
+Los sistemas TTS modernos usan redes neuronales para generar voz de alta calidad y naturalidad.
+gTTS es una libreria de Python que usa la API de Google Text-to-Speech para convertir texto en audio MP3.
+Tacotron 2 es un modelo neuronal que transforma texto o fonemas en espectrogramas Mel.
+FastSpeech es otro modelo TTS neuronal que genera espectrogramas mas rapido que Tacotron.
+WaveNet y HiFi-GAN son vocoders neuronales que convierten espectrogramas Mel en senal de audio de alta fidelidad.
+Un vocoder es la componente del sistema TTS que convierte representaciones intermedias en audio final.
+Los sistemas TTS clasicos usaban sintesis por concatenacion de segmentos de voz grabados.
+Los sistemas TTS modernos basados en redes neuronales producen voz mas natural y con mejor prosodia.
+El TTS se usa en asistentes de voz, lectores de pantalla, aplicaciones de accesibilidad y audiolibros.
+La prosodia en TTS incluye la entonacion, el ritmo y el acento que hacen natural el habla sintetizada.
+Que es TTS: es la sintesis de voz, el proceso automatico que convierte texto escrito en audio hablado.
+Como funciona gTTS: envia el texto a la API de Google Text-to-Speech y devuelve un archivo de audio en formato MP3.
+Que es un vocoder: es el componente del sistema TTS que convierte el espectrograma en senal de audio escuchable.
+
+# =========================
+# WER - TASA DE ERROR DE PALABRA
+# =========================
+El Word Error Rate mide la tasa de error en el reconocimiento automatico de voz comparando con una referencia.
+WER significa Word Error Rate o Tasa de Error de Palabra.
+El WER compara el texto transcripto automaticamente con la transcripcion correcta de referencia.
+Un WER bajo indica mejor calidad de reconocimiento de voz del sistema ASR.
+Un WER de cero significa que la transcripcion es perfecta sin ningun error.
+El WER considera tres tipos de errores: inserciones, eliminaciones y sustituciones de palabras.
+Una insercion ocurre cuando el ASR agrega una palabra que no estaba en el texto de referencia.
+Una eliminacion ocurre cuando el ASR omite una palabra que si estaba en el texto de referencia.
+Una sustitucion ocurre cuando el ASR reemplaza una palabra por otra palabra incorrecta.
+El WER se calcula dividiendo la suma de inserciones, eliminaciones y sustituciones entre el total de palabras de referencia.
+El WER usa el mismo algoritmo que la distancia de Levenshtein pero operando sobre palabras en lugar de caracteres.
+Un WER por debajo de 5 por ciento se considera muy bueno en condiciones de habla clara.
+Los sistemas de reconocimiento de voz modernos como Whisper alcanzan WER muy bajos en condiciones ideales.
+Que es el WER: es la tasa de error de palabras que mide la precision del reconocimiento automatico del habla comparando la transcripcion con el texto de referencia.
+Como se calcula el WER: se suma el numero de inserciones, eliminaciones y sustituciones y se divide entre el total de palabras de referencia.
+Que es una sustitucion en el WER: es cuando el ASR transcribe una palabra incorrectamente reemplazandola por otra.
+Que es una insercion en el WER: es cuando el ASR agrega una palabra extra que no estaba en el texto original.
+Que es una eliminacion en el WER: es cuando el ASR omite una palabra que si estaba en el texto de referencia.
+
+# =========================
+# MODELOS DE LENGUAJE
+# =========================
+Un modelo de lenguaje calcula la probabilidad de una secuencia de palabras.
+Los modelos de lenguaje se usan en reconocimiento de voz, correccion ortografica y traduccion automatica.
+Los modelos estadisticos de lenguaje estiman probabilidades a partir de frecuencias de N-gramas en el corpus.
+Los modelos neuronales de lenguaje usan redes recurrentes o transformers para capturar el contexto.
+Los transformers son la arquitectura dominante en modelos de lenguaje modernos como BERT y GPT.
+Un modelo de lenguaje se entrena sobre un corpus grande y se evalua con perplejidad sobre un corpus de prueba.
+Los modelos de lenguaje de gran escala como GPT-4 fueron entrenados con cientos de miles de millones de palabras.
+Los modelos de lenguaje pueden usarse para generar texto, completar oraciones y clasificar texto.
+La tarea de un modelo de lenguaje es asignar una probabilidad a cada secuencia posible de palabras.
+Los modelos de Markov de primer orden asumen que la probabilidad de una palabra depende solo de la anterior.
+Que es un modelo de lenguaje: es un modelo que asigna probabilidades a secuencias de palabras.
+Para que sirve un modelo de lenguaje: para predecir palabras, generar texto, corregir errores y mejorar el reconocimiento de voz.
+Que diferencia hay entre un modelo estadistico y uno neuronal: el estadistico usa conteos de N-gramas, el neuronal usa redes para capturar dependencias de largo alcance.
+
+# =========================
+# CHATBOTS E INTENCION
+# =========================
+Un chatbot es un sistema que mantiene conversaciones con usuarios usando lenguaje natural.
+Los chatbots basados en recuperacion eligen respuestas de una base de conocimiento fija sin generar texto nuevo.
+Los chatbots generativos producen respuestas nuevas usando modelos de lenguaje entrenados.
+La deteccion de intencion identifica que objetivo tiene el usuario con su mensaje.
+Una intencion representa el objetivo del usuario por ejemplo consultar informacion o pedir una definicion.
+Las entidades son valores especificos dentro de una intencion como un concepto, fecha o nombre.
+Un chatbot retrieval-based es mas predecible y controlable que uno generativo.
+Un chatbot generativo puede producir respuestas mas variadas pero tambien puede cometer errores.
+La gestion del dialogo determina como el chatbot responde en funcion del contexto de la conversacion.
+Un sistema de preguntas y respuestas basado en TF-IDF es un ejemplo sencillo de chatbot retrieval-based.
+Que es la deteccion de intencion: es el proceso de identificar el objetivo del usuario a partir de su mensaje.
+Cual es la diferencia entre chatbot generativo y retrieval-based: el generativo crea respuestas nuevas, el retrieval-based selecciona de respuestas predefinidas.
+Que es un chatbot: es un programa que simula conversaciones con usuarios usando procesamiento del lenguaje natural.
+
+# =========================
+# EMBEDDINGS Y REPRESENTACIONES VECTORIALES
+# =========================
+Los embeddings son representaciones numericas densas de palabras en un espacio vectorial de alta dimension.
+Word2Vec es un metodo que entrena redes neuronales poco profundas para generar embeddings de palabras.
+Palabras con significados similares tienen vectores cercanos en el espacio de embeddings de Word2Vec.
+Los embeddings permiten que el modelo capture relaciones semanticas como la diferencia entre rey y reina.
+GloVe genera embeddings combinando estadisticas globales del corpus con informacion local de co-ocurrencia.
+FastText extiende Word2Vec representando palabras como suma de embeddings de sus n-gramas de caracteres.
+FastText maneja mejor las palabras fuera del vocabulario porque puede representar palabras nuevas por sus subpalabras.
+Los embeddings contextuales como los de BERT generan un vector diferente para cada uso de la palabra segun su contexto.
+Los embeddings de oraciones representan frases completas como un unico vector en el espacio semantico.
+La similitud entre embeddings se mide con similitud del coseno o distancia euclidiana.
+Los embeddings son la base de la mayoria de los sistemas modernos de PLN y recuperacion de informacion.
+Que son los embeddings: son representaciones vectoriales densas de palabras que capturan su significado y relaciones semanticas.
+Para que sirven los embeddings: para que el modelo pueda comparar palabras y documentos por su significado semantico.
+Que es Word2Vec: es un metodo que entrena una red neuronal para aprender representaciones vectoriales de palabras.
+Que diferencia hay entre Word2Vec y FastText: FastText representa tambien las subpalabras lo que le permite manejar palabras desconocidas.
+
+# =========================
+# TRANSFORMERS Y BERT
+# =========================
+Los transformers son una arquitectura de red neuronal basada en mecanismos de atencion para procesar secuencias.
+BERT es un modelo de lenguaje basado en transformers entrenado por Google con texto de Wikipedia y libros.
+BERT significa Bidirectional Encoder Representations from Transformers.
+BERT es bidireccional porque analiza el contexto tanto de la izquierda como de la derecha de cada palabra.
+GPT es un modelo de lenguaje generativo basado en transformers entrenado por OpenAI.
+Los transformers resuelven el problema de las dependencias de largo alcance que tenian las RNN y LSTM.
+El mecanismo de atencion permite al modelo considerar todas las palabras del texto simultaneamente.
+Los modelos preentrenados como BERT pueden ajustarse para tareas especificas con pocos datos adicionales.
+El fine-tuning adapta un modelo preentrenado a una tarea especifica usando un corpus mas pequeno.
+Que es BERT: es un modelo de lenguaje bidireccional basado en transformers entrenado con Wikipedia y libros.
+Que es un transformer: es una arquitectura de red neuronal con mecanismos de atencion para procesar texto de forma paralela.
+Que es el mecanismo de atencion: es la componente del transformer que pondera la importancia de cada palabra del contexto.
+
+# =========================
+# SEGMENTACION Y TOKENIZACION AVANZADA
+# =========================
+La segmentacion de oraciones divide un texto en oraciones individuales.
+La segmentacion de oraciones no es trivial porque el punto puede indicar fin de oracion o abreviatura.
+La tokenizacion por subpalabras descompone las palabras en unidades menores para manejar vocabularios abiertos.
+BPE o Byte Pair Encoding es un algoritmo de tokenizacion por subpalabras usado en modelos como GPT.
+WordPiece es el algoritmo de tokenizacion por subpalabras usado por BERT.
+La tokenizacion por subpalabras permite representar palabras desconocidas como combinacion de subpalabras conocidas.
+En espanol la tokenizacion debe manejar contracciones como del que equivale a de mas el.
+Que es la tokenizacion por subpalabras: es dividir palabras en unidades menores para manejar palabras nuevas no vistas en el vocabulario.
+Que es BPE: es el algoritmo Byte Pair Encoding para tokenizacion por subpalabras usado en modelos de lenguaje modernos.
+
+# =========================
+# EXPRESIONES REGULARES EN PLN
+# =========================
+Las expresiones regulares son patrones que describen conjuntos de cadenas de texto.
+Las expresiones regulares son una herramienta fundamental para el preprocesamiento de texto en PLN.
+Una expresion regular puede encontrar todas las fechas, numeros o correos electronicos en un texto.
+El modulo re de Python permite usar expresiones regulares para buscar y reemplazar patrones en texto.
+Las expresiones regulares se usan para limpiar texto eliminando caracteres especiales o formatos no deseados.
+Que son las expresiones regulares: son patrones que describen conjuntos de cadenas para buscar y manipular texto.
+Para que se usan las expresiones regulares en PLN: para limpiar texto, extraer patrones y normalizar formatos antes del analisis.
+
+# =========================
+# PREGUNTAS Y RESPUESTAS FRECUENTES DE LA MATERIA
+# =========================
+Que estudia la unidad 11 de la tecnicatura: estudia las tecnicas de procesamiento del habla incluyendo PLN, modelos de N-gramas, recuperacion de informacion y reconocimiento de voz.
+Que es spaCy: es una libreria de Python para PLN industrial que incluye modelos preentrenados para tokenizacion, NER y POS tagging en espanol.
+Como se instala spaCy para espanol: se instala con pip install spacy y luego se descarga el modelo con python -m spacy download es_core_news_sm.
+Que es scikit-learn: es una libreria de Python para aprendizaje automatico que incluye TfidfVectorizer y cosine_similarity para busqueda de informacion.
+Para que sirve TfidfVectorizer de scikit-learn: sirve para convertir una coleccion de textos en una matriz de pesos TF-IDF lista para calcular similitud.
+Que es NLTK: es la libreria Natural Language Toolkit de Python, clasica para PLN, que incluye corpus, tokenizadores y etiquetadores morfologicos.
+Como se mide la calidad de un modelo de lenguaje: se mide principalmente con la perplejidad calculada sobre un corpus de prueba independiente.
+Que diferencia hay entre ASR y TTS: ASR convierte audio en texto, TTS convierte texto en audio, son procesos inversos.
+Que hace Whisper de OpenAI: es un modelo de reconocimiento de voz que transcribe audio en texto en mas de 90 idiomas con alta precision.
+Como funciona gTTS: envia texto al servicio de Google Text-to-Speech y devuelve audio en formato MP3 listo para reproducir.
+Que es un corpus en PLN: es un conjunto grande de textos usado para entrenar, evaluar o ajustar modelos de lenguaje.
+Para que sirve un corpus en PLN: para estimar probabilidades de palabras, entrenar modelos de N-gramas y construir indices TF-IDF.
+Que es el vocabulario en un modelo de lenguaje: es el conjunto de todas las palabras distintas que aparecen en el corpus de entrenamiento.
+Que pasa con palabras fuera del vocabulario en N-gramas: tienen probabilidad cero sin suavizado, por eso se aplica Add-k para asignarles una probabilidad pequeña.
+Como se genera texto con un modelo de bigramas: se parte de una palabra inicial y se selecciona probabilisticamente la siguiente segun la distribucion del modelo.
+Que es el modelo de Markov en PLN: es un modelo que asume que la probabilidad de una palabra depende solo de un numero fijo de palabras anteriores.
+Cual es la diferencia entre modelo de lenguaje estadistico y neuronal: el estadistico usa conteos de N-gramas, el neuronal usa redes para capturar dependencias mas largas.
+Como se construye un indice invertido: se recorre el corpus, se extraen los terminos de cada documento y se mapea cada termino a la lista de documentos que lo contienen.
+Que ventaja tiene el indice invertido: permite buscar en miles de documentos de forma eficiente sin leer todos los textos completos en cada consulta.
+Que es la precision en un sistema de busqueda: es la proporcion de documentos recuperados que son realmente relevantes para la consulta del usuario.
+Que es el recall en un sistema de busqueda: es la proporcion de documentos relevantes del corpus que el sistema logro recuperar en los resultados.
+Como se calcula F1: como la media armonica de precision y recall, es decir 2 por precision por recall dividido por la suma de ambos.
+Que ventaja tiene F1 sobre precision y recall por separado: combina ambas metricas en un solo valor que penaliza los sistemas desequilibrados.
+Que tipos de errores mide el WER: mide inserciones, que son palabras agregadas de mas; eliminaciones, palabras omitidas; y sustituciones, palabras reemplazadas.
+Por que el WER puede superar el 100 por ciento: porque si hay muchas inserciones el numero de errores puede ser mayor que el numero de palabras de referencia.
+Que es el suavizado Add-k: es una generalizacion del suavizado de Laplace que suma un valor k menor que 1 en lugar de 1 para suavizar menos agresivamente.
+Como afecta el valor de k al modelo de N-gramas: un k alto suaviza mas y da mas probabilidad a N-gramas no vistos, un k bajo confía mas en los datos del corpus.
+Que es la entropia cruzada en modelos de lenguaje: es una medida de que tan bien el modelo predice los datos de prueba, relacionada directamente con la perplejidad.
+Que relacion hay entre entropia cruzada y perplejidad: la perplejidad es 2 elevado a la entropia cruzada del modelo sobre el corpus de prueba.
+Que es el fine-tuning en modelos de lenguaje: es el ajuste de un modelo preentrenado a una tarea especifica usando un corpus mas pequeno y especifico.
+Que significa que un chatbot sea retrieval-based: significa que elige respuestas de una base de conocimiento fija en lugar de generar texto nuevo.
+Por que ProfeBot no usa ChatGPT ni Claude: porque el proyecto requiere implementar los algoritmos propios de PLN sin depender de LLMs externos.

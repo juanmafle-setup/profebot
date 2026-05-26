@@ -1,0 +1,143 @@
+"""
+Módulo de evaluación del sistema ProfeBot.
+Implementa: WER, detección de intención, Precisión/Recall/F1.
+"""
+
+from modules.search import buscar, UMBRAL_SIMILITUD
+
+# =============================================================
+# WER — Word Error Rate
+# =============================================================
+
+def _distancia_palabras(referencia, hipotesis):
+    """Distancia de Levenshtein a nivel de palabras."""
+    ref = referencia.lower().split()
+    hip = hipotesis.lower().split()
+    n, m = len(ref), len(hip)
+
+    dp = [[0] * (m + 1) for _ in range(n + 1)]
+    for i in range(n + 1):
+        dp[i][0] = i
+    for j in range(m + 1):
+        dp[0][j] = j
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            if ref[i - 1] == hip[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1]
+            else:
+                dp[i][j] = 1 + min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
+
+    return dp[n][m], len(ref)
+
+
+def calcular_wer(referencia, hipotesis):
+    """Calcula WER entre una frase de referencia y su transcripción."""
+    errores, n = _distancia_palabras(referencia, hipotesis)
+    return round(errores / max(n, 1), 4)
+
+
+def evaluar_wer_batch(frases):
+    """
+    frases: lista de dicts con 'referencia' e 'hipotesis'.
+    Devuelve lista de resultados por frase y WER promedio global.
+    """
+    resultados = []
+    for f in frases:
+        wer = calcular_wer(f["referencia"], f["hipotesis"])
+        resultados.append({
+            "referencia": f["referencia"],
+            "hipotesis":  f["hipotesis"],
+            "wer":        wer
+        })
+    promedio = (
+        round(sum(r["wer"] for r in resultados) / len(resultados), 4)
+        if resultados else 0.0
+    )
+    return resultados, promedio
+
+
+# =============================================================
+# DETECCIÓN DE INTENCIÓN
+# =============================================================
+
+_INTENCIONES = {
+    "DEFINICION":  ["que es", "qué es", "defini", "definí", "que significa",
+                    "qué significa", "que son", "qué son",
+                    "que mide", "qué mide", "que hace", "qué hace",
+                    "que representa", "qué representa", "que indica", "qué indica"],
+    "CALCULO":     ["como se calcula", "cómo se calcula", "como funciona",
+                    "cómo funciona", "como se mide", "cómo se mide",
+                    "formula", "fórmula", "como se obtiene"],
+    "APLICACION":  ["para que sirve", "para qué sirve", "cual es el uso",
+                    "cuál es el uso", "para que se usa", "para qué se usa",
+                    "aplicaciones", "para que sirven"],
+    "COMPARACION": ["diferencia entre", "diferencia", " vs ", " versus ",
+                    "comparar", "mejor que", "ventaja"],
+    "EJEMPLO":     ["ejemplo", "ejemplos", "como ejemplo", "por ejemplo",
+                    "muestra un", "dame un"],
+}
+
+
+def detectar_intencion(texto):
+    """Clasifica la intención del usuario en base a palabras clave."""
+    texto_lower = texto.lower()
+    for intencion, claves in _INTENCIONES.items():
+        if any(c in texto_lower for c in claves):
+            return intencion
+    return "CONSULTA_GENERAL"
+
+
+# =============================================================
+# PRECISIÓN / RECALL / F1
+# =============================================================
+
+def evaluar_busqueda(consultas_eval, top_k=5):
+    """
+    consultas_eval: lista de dicts con:
+        - 'query':             string de la consulta
+        - 'palabras_relevantes': lista de fragmentos que deben aparecer
+                                 en documentos relevantes
+        - 'total_relevantes':  cuántos documentos relevantes existen en
+                               el corpus (para calcular recall)
+    Devuelve: lista de resultados por consulta y promedios globales.
+    """
+    resultados = []
+
+    for item in consultas_eval:
+        query       = item["query"]
+        palabras    = [p.lower() for p in item["palabras_relevantes"]]
+        total_rel   = item.get("total_relevantes", len(palabras))
+
+        res_busqueda = buscar(query)
+        top_docs     = [doc for doc, score in res_busqueda[:top_k]
+                        if score >= UMBRAL_SIMILITUD]
+
+        encontrados = sum(
+            1 for doc in top_docs
+            if any(p in doc.lower() for p in palabras)
+        )
+
+        precision = round(encontrados / len(top_docs), 3) if top_docs else 0.0
+        recall    = round(encontrados / total_rel, 3)     if total_rel  else 0.0
+        f1        = (
+            round(2 * precision * recall / (precision + recall), 3)
+            if (precision + recall) > 0 else 0.0
+        )
+
+        resultados.append({
+            "query":       query,
+            "precision":   precision,
+            "recall":      recall,
+            "f1":          f1,
+            "recuperados": len(top_docs),
+            "relevantes_encontrados": encontrados,
+        })
+
+    if resultados:
+        p_prom  = round(sum(r["precision"] for r in resultados) / len(resultados), 3)
+        r_prom  = round(sum(r["recall"]    for r in resultados) / len(resultados), 3)
+        f1_prom = round(sum(r["f1"]        for r in resultados) / len(resultados), 3)
+    else:
+        p_prom = r_prom = f1_prom = 0.0
+
+    return resultados, {"precision": p_prom, "recall": r_prom, "f1": f1_prom}

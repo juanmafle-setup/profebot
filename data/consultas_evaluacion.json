@@ -1,0 +1,52 @@
+[
+  {
+    "query": "que es la perplejidad",
+    "palabras_relevantes": ["perplejidad mide", "nivel de sorpresa", "predice bien", "mejor desempeno"],
+    "total_relevantes": 5
+  },
+  {
+    "query": "como se calcula tf idf",
+    "palabras_relevantes": ["TF se calcula", "IDF se calcula", "Term Frequency", "Inverse Document"],
+    "total_relevantes": 4
+  },
+  {
+    "query": "que son los n-gramas",
+    "palabras_relevantes": ["N-gramas son secuencias", "bigrama es", "trigrama es", "N-grama es"],
+    "total_relevantes": 5
+  },
+  {
+    "query": "como funciona el reconocimiento de voz asr",
+    "palabras_relevantes": ["ASR", "reconocimiento automatico", "convierte audio", "Whisper"],
+    "total_relevantes": 5
+  },
+  {
+    "query": "que es la similitud del coseno",
+    "palabras_relevantes": ["similitud del coseno", "coseno del angulo", "cercania entre", "angulo entre"],
+    "total_relevantes": 4
+  },
+  {
+    "query": "para que sirve el suavizado de laplace",
+    "palabras_relevantes": ["suavizado de Laplace", "probabilidades cero", "Add-1", "suma 1"],
+    "total_relevantes": 4
+  },
+  {
+    "query": "que es la tokenizacion y para que sirve",
+    "palabras_relevantes": ["tokenizacion divide", "token es", "unidades llamadas", "palabras o signos"],
+    "total_relevantes": 4
+  },
+  {
+    "query": "diferencia entre precision y recall en recuperacion de informacion",
+    "palabras_relevantes": ["precision mide", "recall mide", "proporcion de documentos"],
+    "total_relevantes": 4
+  },
+  {
+    "query": "que es un chatbot y como funciona",
+    "palabras_relevantes": ["chatbot es", "chatbot basado", "chatbot generativo", "retrieval"],
+    "total_relevantes": 4
+  },
+  {
+    "query": "que son los embeddings de palabras",
+    "palabras_relevantes": ["embeddings son", "Word2Vec", "representaciones vectoriales", "espacio vectorial"],
+    "total_relevantes": 4
+  }
+]

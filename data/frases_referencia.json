@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "referencia": "la perplejidad mide que tan bien predice el modelo de lenguaje",
+    "hipotesis":  "la perplejidad mide que tan vien predice el modelo de lenguaje"
+  },
+  {
+    "id": 2,
+    "referencia": "los n gramas son secuencias de palabras consecutivas en un texto",
+    "hipotesis":  "los en gramas son secuencias de palabras consecutivas en un texto"
+  },
+  {
+    "id": 3,
+    "referencia": "tf idf mide la importancia de una palabra en un documento",
+    "hipotesis":  "te efe i de efe mide la importancia de una palabra en un documento"
+  },
+  {
+    "id": 4,
+    "referencia": "la similitud del coseno compara la cercania entre dos vectores",
+    "hipotesis":  "la similitud del coseno compara la cercania entre dos sectores"
+  },
+  {
+    "id": 5,
+    "referencia": "el reconocimiento automatico de voz convierte audio en texto",
+    "hipotesis":  "el reconocimiento automatico de voz convierte audio en texto"
+  },
+  {
+    "id": 6,
+    "referencia": "el suavizado de laplace suma uno a todos los conteos de n gramas",
+    "hipotesis":  "el suavizado de laplace suma uno a todos los contenidos de n gramas"
+  },
+  {
+    "id": 7,
+    "referencia": "la tokenizacion divide el texto en unidades llamadas tokens",
+    "hipotesis":  "la tokenizacion divide el texto en unidades llamadas tokenes"
+  },
+  {
+    "id": 8,
+    "referencia": "el word error rate mide los errores de transcripcion de voz",
+    "hipotesis":  "el word error rate mide los errores de trascripcion de vos"
+  },
+  {
+    "id": 9,
+    "referencia": "la lematizacion reduce cada palabra a su forma base o lema",
+    "hipotesis":  "la lematizacion reduce cada palabra a su forma vase o lema"
+  },
+  {
+    "id": 10,
+    "referencia": "los embeddings representan palabras como vectores numericos en alta dimension",
+    "hipotesis":  "los embedins representan palabras como vectores numericos en alta dimension"
+  }
+]
