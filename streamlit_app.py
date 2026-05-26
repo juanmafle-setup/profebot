@@ -551,6 +551,17 @@ if vista == "💬 Chat":
         st.session_state.procesando = True
         st.session_state.ultimo_texto_procesado = texto_input
 
+        # Valores por defecto: garantizan que las variables existen aunque
+        # ocurra una excepción dentro del bloque try (evita NameError al mostrar).
+        hora       = datetime.now().strftime("%H:%M")
+        respuesta  = None
+        data       = {}
+        pp         = None
+        tiempo_ms  = 0.0
+        cant_tokens  = 0
+        tokens_preview = ""
+        score_max    = 0.0
+
         with st.status("🧠 Procesando tu consulta...", expanded=True) as status:
             try:
                 inicio = time.time()
@@ -616,6 +627,9 @@ if vista == "💬 Chat":
                 st.error(f"Ocurrió un error: {e}")
             finally:
                 st.session_state.procesando = False
+
+        if respuesta is None:
+            st.stop()   # hubo excepción — el error ya se mostró, no seguir
 
         # TTS y respuesta visual
         if _modo_salida in ("audio", "ambos"):
