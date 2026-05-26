@@ -1,6 +1,6 @@
 {
-  "nivel_respuesta": "normal",
-  "num_resultados": 1,
+  "nivel_respuesta": "detallada",
+  "num_resultados": 3,
   "modo_entrada": "ambos",
   "modo_salida": "ambos"
 }

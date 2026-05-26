@@ -33,6 +33,12 @@ _MODOS_K = {
 }
 # Etiqueta corta para el panel de análisis, derivada de la clave del dict.
 _MODOS_LABEL = {k: k.split()[1] for k in _MODOS_K}
+# Nombre interno del modo de respuesta para cada opción del radio.
+_MODOS_RESP = {
+    "📄 Tal cual el corpus":      "corpus",
+    "⚖️ Equilibrado":             "equilibrado",
+    "🤖 Formulado por el agente": "agente",
+}
 
 
 # ── CONSTANTES DE BÚSQUEDA / RESPUESTA ─────────────────────────────────────
@@ -155,21 +161,78 @@ def _quitar_prefijo(doc):
     return doc
 
 
-def generar_respuesta(resultados, intencion="CONSULTA_GENERAL",
-                      num_resultados=1, query=""):
+def _continuar_ngramas(texto_base, modelo_ng, max_palabras=20):
     """
-    Tres capas de puntuación (sin aprendizaje en línea):
-      1. TF-IDF score  — relevancia temática (dominante)
-      2. Bonus directo — +0.4/0.5 si la oración responde exactamente {término} + verbo
-      3. Bonus intención — +0.08 × patrones léxicos de la intención
+    Extiende texto_base generando palabras nuevas con el modelo de n-gramas (greedy).
+    El agente NO aprende de las interacciones — el modelo es estático (solo lee el corpus).
 
-    La suma garantiza que TF-IDF siga siendo el factor principal.
-    El bonus directo identifica oraciones Q&A o sujeto-verbo precisas.
+    Estrategia:
+      - Limpia el texto igual que el corpus (quita puntuación) para que los tokens
+        coincidan con el vocabulario del modelo entrenado.
+      - Toma la última palabra limpia como contexto inicial.
+      - Elige en cada paso la palabra más probable que no haya aparecido ya
+        (detección de ciclos), hasta max_palabras o token de fin de oración.
+    """
+    if not modelo_ng or not texto_base.strip():
+        return texto_base
+
+    # Limpiar igual que el corpus: solo letras, dígitos y espacios (sin puntuación).
+    clean   = re.sub(r'[^\w\sáéíóúñü]', '', texto_base.lower()).strip()
+    tokens  = clean.split()
+    if not tokens:
+        return texto_base
+
+    contexto  = [tokens[-1]]
+    extension = []
+    visitados = set(tokens[-3:])  # evita repetir las últimas palabras del ancla
+
+    for _ in range(max_palabras):
+        sugerencias = modelo_ng.sugerir(contexto, top_n=8)
+        candidatos  = [
+            (p, prob) for p, prob in sugerencias
+            if p not in {"</s>", "<s>"} and p not in visitados
+        ]
+        if not candidatos:
+            break
+        siguiente = candidatos[0][0]
+        extension.append(siguiente)
+        visitados.add(siguiente)
+        contexto = [siguiente]
+
+    if not extension:
+        return texto_base
+
+    ext_text = " ".join(extension)
+    base     = texto_base.rstrip(" .")
+    return f"{base} {ext_text}."
+
+
+def generar_respuesta(resultados, intencion="CONSULTA_GENERAL",
+                      num_resultados=1, query="",
+                      modo="equilibrado", modelo_ng=None):
+    """
+    Genera la respuesta según el modo seleccionado (sin aprendizaje en línea):
+
+    'corpus'      — devuelve la línea del corpus tal cual, sin ningún procesamiento.
+                    Muestra exactamente lo que está guardado en el corpus.
+
+    'equilibrado' — TF-IDF + intent re-ranking + limpieza de prefijos Q&A + unión
+                    de hasta num_resultados oraciones coherentes.
+
+    'agente'      — igual que 'equilibrado' para obtener el ancla temática,
+                    luego el modelo de n-gramas extiende la respuesta generando
+                    hasta 20 palabras adicionales a partir del último token.
+                    El modelo es estático: no aprende de las consultas.
     """
     candidatos = [(r.strip(), s) for r, s in resultados if s >= UMBRAL_SIMILITUD]
     if not candidatos:
         return "No encontré información sobre ese tema en el corpus. Intentá reformular la pregunta."
 
+    # ── MODO 1: tal cual el corpus ───────────────────────────────────────────
+    if modo == "corpus":
+        return candidatos[0][0]   # línea exacta, sin stripping ni reformateo
+
+    # ── MODOS 2 y 3: recuperación inteligente ───────────────────────────────
     termino  = _extraer_termino(query)
     term_n   = re.sub(r'[-\s]', '', termino)   # pre-computado: evita recalcular por doc
     patrones = _PATRONES_INTENCION.get(intencion, [])
@@ -186,6 +249,8 @@ def generar_respuesta(resultados, intencion="CONSULTA_GENERAL",
     )
 
     # Filtro de coherencia: 2ª y 3ª oración solo si TF-IDF ≥ 55 % del top.
+    # En modo agente usamos solo 1 oración ancla para que la extensión sea limpia.
+    n_sel             = 1 if modo == "agente" else num_resultados
     umbral_coherencia = candidatos_reranked[0][1] * 0.55
 
     seleccionados = []
@@ -194,11 +259,17 @@ def generar_respuesta(resultados, intencion="CONSULTA_GENERAL",
             seleccionados.append(doc)
         elif tfidf >= umbral_coherencia:
             seleccionados.append(doc)
-        if len(seleccionados) >= num_resultados:
+        if len(seleccionados) >= n_sel:
             break
 
     limpios = [_quitar_prefijo(d) for d in seleccionados]
-    return " ".join(limpios)
+    base    = " ".join(limpios)
+
+    # ── MODO 3: extiende el ancla con generación por n-gramas ───────────────
+    if modo == "agente":
+        return _continuar_ngramas(base, modelo_ng, max_palabras=20)
+
+    return base
 
 
 crear_tablas()  # Aseguramos que las tablas existan al iniciar la app
@@ -309,7 +380,8 @@ with st.sidebar:
                 "en el autocompletado. El agente no aprende de las interacciones."
             ),
         )
-        k_valor = _MODOS_K[_modo_sel]
+        k_valor    = _MODOS_K[_modo_sel]
+        _modo_resp = _MODOS_RESP[_modo_sel]
 
         st.markdown("---")
         st.info("Asistente académico para Procesamiento del Lenguaje Natural y reconocimiento de voz.")
@@ -335,7 +407,8 @@ with st.sidebar:
                 mime="text/plain"
             )
     else:
-        k_valor = 0.1  # valor por defecto fuera del chat
+        k_valor    = 0.1          # valor por defecto fuera del chat
+        _modo_resp = "equilibrado"
 
 # =====================================================
 # VISTA CHAT
@@ -441,8 +514,11 @@ if vista == "💬 Chat":
                 intencion = detectar_intencion(texto_input)
 
                 status.update(label="💡 Generando respuesta...")
-                respuesta = generar_respuesta(resultados, intencion=intencion,
-                                              num_resultados=_num_res, query=texto_input)
+                respuesta = generar_respuesta(
+                    resultados, intencion=intencion,
+                    num_resultados=_num_res, query=texto_input,
+                    modo=_modo_resp, modelo_ng=modelo_ng,
+                )
 
                 status.update(label="📊 Analizando texto...")
                 data = procesar(texto_input)
