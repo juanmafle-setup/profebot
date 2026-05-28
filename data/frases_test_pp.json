@@ -1,0 +1,17 @@
+[
+  "La perplejidad se utiliza para evaluar la calidad de un modelo de lenguaje estadístico.",
+  "El suavizado de Laplace agrega uno a cada conteo de n-grama para evitar probabilidades cero.",
+  "El índice invertido mapea cada término a la lista de documentos que lo contienen.",
+  "La similitud del coseno mide el ángulo entre dos vectores en el espacio vectorial.",
+  "El word error rate compara la transcripción generada con la transcripción de referencia.",
+  "La tokenización es el proceso de dividir el texto en unidades mínimas de significado.",
+  "Un modelo de bigramas predice la siguiente palabra a partir de la palabra anterior.",
+  "La recuperación de información busca documentos relevantes en respuesta a una consulta.",
+  "El reconocimiento automático del habla convierte señales de audio en texto escrito.",
+  "La síntesis de voz genera audio a partir de texto usando modelos acústicos.",
+  "TF-IDF pondera la frecuencia de un término penalizando los que aparecen en muchos documentos.",
+  "Los modelos de n-gramas asumen que la probabilidad de una palabra depende de las anteriores.",
+  "El procesamiento del lenguaje natural combina lingüística y aprendizaje automático.",
+  "La entropía cruzada mide la diferencia entre una distribución real y una aproximada.",
+  "El reconocimiento de entidades nombradas extrae personas, lugares y organizaciones del texto."
+]

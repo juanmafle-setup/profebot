@@ -1,0 +1,94 @@
+[
+  {
+    "texto": "La perplejidad mide qué tan bien el modelo predice una secuencia de palabras.",
+    "entidades_esperadas": [["perplejidad", "CONCEPTO"]]
+  },
+  {
+    "texto": "El TF-IDF calcula la importancia de cada término en el documento.",
+    "entidades_esperadas": [["tf-idf", "CONCEPTO"]]
+  },
+  {
+    "texto": "El WER compara la transcripción del ASR con la frase de referencia.",
+    "entidades_esperadas": [["wer", "CONCEPTO"], ["asr", "CONCEPTO"]]
+  },
+  {
+    "texto": "Un bigrama es una secuencia de dos palabras consecutivas en el corpus.",
+    "entidades_esperadas": [["bigrama", "CONCEPTO"]]
+  },
+  {
+    "texto": "La tokenización divide el texto en tokens individuales para su análisis.",
+    "entidades_esperadas": [["tokenización", "CONCEPTO"], ["token", "CONCEPTO"]]
+  },
+  {
+    "texto": "K-Means agrupa los datos en k clusters sin necesidad de etiquetas previas.",
+    "entidades_esperadas": [["k-means", "ALGORITMO"]]
+  },
+  {
+    "texto": "Naive Bayes usa el teorema de Bayes para clasificar texto eficientemente.",
+    "entidades_esperadas": [["naive bayes", "ALGORITMO"]]
+  },
+  {
+    "texto": "El F1-score combina precisión y recall en una única métrica balanceada.",
+    "entidades_esperadas": [["f1", "METRICA"], ["precisión", "METRICA"], ["recall", "METRICA"]]
+  },
+  {
+    "texto": "Usamos spaCy para el NER y scikit-learn para la clasificación.",
+    "entidades_esperadas": [["spacy", "HERRAMIENTA"], ["scikit-learn", "HERRAMIENTA"]]
+  },
+  {
+    "texto": "Streamlit permite crear aplicaciones web interactivas directamente en Python.",
+    "entidades_esperadas": [["streamlit", "HERRAMIENTA"]]
+  },
+  {
+    "texto": "El suavizado add-k evita probabilidades cero para n-gramas no vistos.",
+    "entidades_esperadas": [["suavizado add-k", "CONCEPTO"], ["n-grama", "CONCEPTO"]]
+  },
+  {
+    "texto": "La similitud del coseno mide el ángulo entre dos vectores TF-IDF.",
+    "entidades_esperadas": [["similitud del coseno", "CONCEPTO"], ["tf-idf", "CONCEPTO"]]
+  },
+  {
+    "texto": "El índice invertido permite búsquedas eficientes sobre grandes corpus.",
+    "entidades_esperadas": [["índice invertido", "CONCEPTO"]]
+  },
+  {
+    "texto": "La accuracy del clasificador naive bayes alcanzó el 87 por ciento.",
+    "entidades_esperadas": [["accuracy", "METRICA"], ["naive bayes", "ALGORITMO"]]
+  },
+  {
+    "texto": "gTTS sintetiza voz en español a partir de texto plano.",
+    "entidades_esperadas": [["gtts", "HERRAMIENTA"]]
+  },
+  {
+    "texto": "Un trigrama considera el contexto de las dos palabras previas.",
+    "entidades_esperadas": [["trigrama", "CONCEPTO"]]
+  },
+  {
+    "texto": "El PLN busca que las computadoras comprendan el lenguaje humano.",
+    "entidades_esperadas": [["pln", "CONCEPTO"]]
+  },
+  {
+    "texto": "La lematización reduce cada palabra a su forma canónica o lema.",
+    "entidades_esperadas": [["lematización", "CONCEPTO"]]
+  },
+  {
+    "texto": "El stemming recorta los sufijos de las palabras para obtener su raíz.",
+    "entidades_esperadas": [["stemming", "CONCEPTO"]]
+  },
+  {
+    "texto": "Un SVM construye el hiperplano que mejor separa las clases.",
+    "entidades_esperadas": [["svm", "ALGORITMO"]]
+  },
+  {
+    "texto": "El reconocimiento de voz convierte señales de audio en texto escrito.",
+    "entidades_esperadas": [["reconocimiento de voz", "CONCEPTO"]]
+  },
+  {
+    "texto": "La entropía cruzada cuantifica la diferencia entre dos distribuciones de probabilidad.",
+    "entidades_esperadas": [["entropía cruzada", "CONCEPTO"]]
+  },
+  {
+    "texto": "La bolsa de palabras ignora el orden y solo cuenta frecuencias de términos.",
+    "entidades_esperadas": [["bolsa de palabras", "CONCEPTO"]]
+  }
+]

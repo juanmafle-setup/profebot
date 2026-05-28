@@ -194,7 +194,63 @@ section[data-testid="stSidebar"]{
     padding: 15px !important;
 }
 
-/* OCULTAR MENÚ STREAMLIT */
-[data-testid="stHeader"] {
-    display: none;
+
+.sidebar-restore-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(124,58,237,0.5);
 }
+/* Ocultar el botón cuando el sidebar está expandido */
+@media (min-width: 992px) {
+    [data-testid="stSidebar"][aria-expanded="true"] ~ .main .sidebar-restore-btn {
+        display: none;
+    }
+}
+/* Asegurar que el botón de colapso del sidebar (☰) nunca se oculte */
+button[data-testid="stSidebarCollapseButton"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* ══════════════════════════════════════════════
+   BOTÓN CONSULTAR — form submit (selector único
+   y confiable: solo afecta st.form_submit_button)
+══════════════════════════════════════════════ */
+[data-testid="stFormSubmitButton"] button {
+    background    : linear-gradient(135deg,#6366f1 0%,#a855f7 100%) !important;
+    border-radius : 14px !important;
+    font-size     : 1rem !important;
+    font-weight   : 700 !important;
+    padding       : 0.72rem 1.6rem !important;
+    border        : none !important;
+    color         : white !important;
+    letter-spacing: .04em !important;
+    box-shadow    : 0 4px 22px rgba(99,102,241,.55),
+                    inset 0 1px 0 rgba(255,255,255,.2) !important;
+    transition    : all .22s cubic-bezier(.4,0,.2,1) !important;
+    width         : 100% !important;
+}
+[data-testid="stFormSubmitButton"] button:hover {
+    transform  : translateY(-2px) !important;
+    box-shadow : 0 10px 36px rgba(99,102,241,.72),
+                 inset 0 1px 0 rgba(255,255,255,.25) !important;
+}
+[data-testid="stFormSubmitButton"] button:active {
+    transform  : scale(.97) !important;
+    box-shadow : 0 2px 10px rgba(99,102,241,.45) !important;
+}
+
+/* Botón primario: Siguiente pregunta */
+[data-testid="baseButton-primary"] {
+    background    : linear-gradient(135deg,#059669,#0891b2) !important;
+    border-radius : 14px !important;
+    font-weight   : 700 !important;
+    letter-spacing: .04em !important;
+    box-shadow    : 0 4px 20px rgba(5,150,105,.4) !important;
+    transition    : all .22s ease !important;
+}
+[data-testid="baseButton-primary"]:hover {
+    transform  : translateY(-2px) !important;
+    box-shadow : 0 10px 34px rgba(5,150,105,.6) !important;
+}
+

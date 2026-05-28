@@ -1,6 +1,6 @@
 {
-  "nivel_respuesta": "detallada",
-  "num_resultados": 3,
+  "nivel_respuesta": "breve",
+  "num_resultados": 1,
   "modo_entrada": "ambos",
   "modo_salida": "ambos"
 }

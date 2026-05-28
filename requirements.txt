@@ -7,3 +7,4 @@ openai-whisper>=20231117
 gtts>=2.5.0
 sounddevice>=0.4.6
 scipy>=1.11.0
+numpy>=1.24.0
