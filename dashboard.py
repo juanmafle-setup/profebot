@@ -1,10 +1,13 @@
 import json
 import os
+from datetime import datetime
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-from modules.db import obtener_estadisticas_dashboard, obtener_historial, obtener_terminos_frecuentes
-from modules.evaluacion import evaluar_wer_batch, evaluar_busqueda
+from modules.db import (obtener_estadisticas_dashboard, obtener_historial,
+                         obtener_terminos_frecuentes, obtener_stats_quiz)
+from modules.evaluacion import (evaluar_wer_batch, evaluar_busqueda,
+                                 evaluar_ner_batch, evaluar_pp_test_set)
 from modules.config import cargar_config, guardar_config
 
 
@@ -12,7 +15,7 @@ from modules.config import cargar_config, guardar_config
 def _cargar_wer():
     path = "data/frases_referencia.json"
     if not os.path.exists(path):
-        return [], 0.0
+        return [], None
     with open(path, "r", encoding="utf-8") as f:
         frases = json.load(f)
     resultados, promedio = evaluar_wer_batch(frases)
@@ -29,11 +32,57 @@ def _cargar_prf():
     return evaluar_busqueda(consultas, top_k=5)
 
 
+@st.cache_data(ttl=300)
+def _cargar_ner():
+    path = "data/ner_evaluacion.json"
+    if not os.path.exists(path):
+        return [], None
+    with open(path, "r", encoding="utf-8") as f:
+        ejemplos = json.load(f)
+    return evaluar_ner_batch(ejemplos)
+
+
+@st.cache_data(ttl=300)
+def _cargar_pp_test():
+    """Evalúa PP sobre el test set para los tres valores de k."""
+    path_test   = "data/frases_test_pp.json"
+    path_corpus = "data/corpus.txt"
+    if not os.path.exists(path_test) or not os.path.exists(path_corpus):
+        return [], {}
+    with open(path_test, "r", encoding="utf-8") as f:
+        frases = json.load(f)
+    with open(path_corpus, "r", encoding="utf-8") as f:
+        corpus = [l for l in f if l.strip() and not l.strip().startswith("#")]
+
+    from modules.ngrams import ModeloNgramas
+    promedios = {}
+    for label, k in [("Corpus (k=0.01)", 0.01),
+                     ("Equilibrado (k=0.1)", 0.1),
+                     ("Agente (k=1.0)", 1.0)]:
+        modelo = ModeloNgramas(n=2, k=k)
+        modelo.entrenar(corpus)
+        _, prom = evaluar_pp_test_set(frases, modelo)
+        promedios[label] = prom
+
+    return frases, promedios
+
+
 def mostrar_dashboard():
     """Vista del dashboard docente con métricas reales."""
 
     st.markdown("## 📊 Dashboard Docente")
     st.markdown("---")
+
+    # ── CONFIRMACIÓN VISUAL TRAS GUARDAR CONFIG ──────────────────────
+    if st.session_state.get("config_guardada"):
+        cfg_guardada = st.session_state.pop("config_guardada")
+        st.success(
+            f"✅ **Configuración guardada.**  \n"
+            f"Nivel: **{cfg_guardada['nivel_respuesta']}** · "
+            f"Entrada: **{cfg_guardada['modo_entrada']}** · "
+            f"Salida: **{cfg_guardada['modo_salida']}**  \n"
+            f"La próxima consulta usará estos ajustes."
+        )
 
     # ── PANEL DE CONFIGURACIÓN DEL AGENTE ───────────────────────────
     with st.expander("⚙️ Configuración del agente", expanded=False):
@@ -94,7 +143,13 @@ def mostrar_dashboard():
                 "modo_salida":     salida_sel,
             }
             guardar_config(nueva_cfg)
-            st.success("✅ Configuración guardada. Se aplicará en el próximo mensaje del chat.")
+            st.session_state.ultimo_texto_procesado = ""
+            st.session_state.ultima_respuesta = None
+            st.session_state.config_guardada = {
+                "nivel_respuesta": nivel_sel,
+                "modo_entrada":    entrada_sel,
+                "modo_salida":     salida_sel,
+            }
             st.rerun()
 
     st.markdown("---")
@@ -106,26 +161,31 @@ def mostrar_dashboard():
         st.error(f"Error al cargar métricas: {e}")
         stats = None
 
-    # ── Evaluaciones fijas (WER y P/R/F1) ───────────────────────────
+    # ── Evaluaciones fijas ───────────────────────────────────────────
     wer_resultados, wer_promedio = _cargar_wer()
     prf_resultados, prf_global   = _cargar_prf()
+    ner_resultados, ner_accuracy = _cargar_ner()
+    _frases_test,   pp_promedios = _cargar_pp_test()
+    quiz_stats                   = obtener_stats_quiz()
 
     # ── MÉTRICAS GLOBALES ────────────────────────────────────────────
     st.subheader("📈 Métricas globales del sistema")
-    c1, c2, c3, c4, c5 = st.columns(5)
+    c1, c2, c3, c4, c5, c6 = st.columns(6)
 
     with c1:
         st.metric("Total consultas", stats["total_consultas"] if stats else 0)
     with c2:
         st.metric("PP promedio", f"{stats['pp_promedio']:.2f}" if stats else "—")
     with c3:
-        # Usar 'is not None' para que 0.0 (WER perfecto) muestre "0.0%" y no "—"
         wer_label = f"{wer_promedio:.1%}" if wer_promedio is not None else "—"
         st.metric("WER promedio", wer_label)
     with c4:
         st.metric("Tiempo prom. (ms)", f"{stats['tiempo_promedio_ms']:.0f}" if stats else "—")
     with c5:
         st.metric("F1 búsqueda", f"{prf_global.get('f1', 0):.3f}" if prf_global else "—")
+    with c6:
+        ner_label = f"{ner_accuracy:.1%}" if ner_accuracy is not None else "—"
+        st.metric("Accuracy NER", ner_label)
 
     st.markdown("---")
 
@@ -229,6 +289,89 @@ def mostrar_dashboard():
 
     st.markdown("---")
 
+    # ── PERPLEJIDAD SOBRE TEST SET ───────────────────────────────────
+    st.subheader("📐 Evaluación de Perplejidad — conjunto de test (15 frases)")
+    if pp_promedios:
+        col_pp1, col_pp2, col_pp3 = st.columns(3)
+        labels = list(pp_promedios.keys())
+        vals   = [pp_promedios[l] for l in labels]
+        for col, lbl, val in zip([col_pp1, col_pp2, col_pp3], labels, vals):
+            col.metric(f"PP media — {lbl}", f"{val:.2f}" if val is not None else "—")
+
+        df_pp = pd.DataFrame({"Suavizado": labels, "PP media": vals})
+        fig_pp = px.bar(df_pp, x="Suavizado", y="PP media",
+                        color="Suavizado",
+                        color_discrete_sequence=["#6366f1", "#10b981", "#f59e0b"],
+                        labels={"PP media": "Perplejidad promedio"})
+        fig_pp.update_layout(showlegend=False)
+        st.plotly_chart(fig_pp, use_container_width=True)
+        st.caption("Menor perplejidad = el modelo predice mejor el texto de test. "
+                   "k pequeño (Corpus) memoriza más; k grande (Agente) generaliza más.")
+    else:
+        st.warning("No se encontró el archivo data/frases_test_pp.json")
+
+    st.markdown("---")
+
+    # ── EVALUACIÓN ACCURACY NER ──────────────────────────────────────
+    st.subheader("🏷️ Evaluación NER — Accuracy por ejemplo (23 casos anotados)")
+    if ner_resultados:
+        df_ner = pd.DataFrame(ner_resultados)
+        df_ner.columns = ["Texto", "Esperadas", "Encontradas", "Accuracy", "No halladas"]
+        df_ner["Accuracy"] = df_ner["Accuracy"].apply(lambda x: f"{x:.0%}")
+        st.dataframe(df_ner, use_container_width=True, hide_index=True)
+        st.success(f"**Accuracy NER global: {ner_accuracy:.1%}** "
+                   f"({int(ner_accuracy * sum(r['esperadas'] for r in ner_resultados))} / "
+                   f"{sum(r['esperadas'] for r in ner_resultados)} entidades detectadas correctamente)")
+    else:
+        st.warning("No se encontró el archivo data/ner_evaluacion.json")
+
+    st.markdown("---")
+
+    # ── ESTADÍSTICAS DEL QUIZ ────────────────────────────────────────
+    st.subheader("🧩 Estadísticas del Quiz")
+    if quiz_stats:
+        # Extraer conteos por tipo desde la distribución
+        _dist_map = {d["tipo"]: d["cantidad"] for d in quiz_stats["distribucion"]}
+        _q_corr = _dist_map.get("correcto",   0)
+        _q_inco = _dist_map.get("incorrecto", 0)
+
+        qc1, qc2, qc3, qc4 = st.columns(4)
+        qc1.metric("📝 Total respondidas", quiz_stats["total"])
+        qc2.metric("✅ Correctas",          _q_corr)
+        qc3.metric("❌ Incorrectas",        _q_inco)
+        qc4.metric("🎯 Accuracy",          f"{quiz_stats['accuracy']:.1%}")
+
+        col_qd, col_qf = st.columns(2)
+
+        with col_qd:
+            st.markdown("**Distribución de resultados**")
+            df_dist = pd.DataFrame(quiz_stats["distribucion"])
+            if not df_dist.empty:
+                fig_dist = px.pie(df_dist, names="tipo", values="cantidad",
+                                  color="tipo",
+                                  color_discrete_map={
+                                      "correcto":   "#22c55e",
+                                      "incorrecto": "#ef4444",
+                                  })
+                st.plotly_chart(fig_dist, use_container_width=True)
+
+        with col_qf:
+            st.markdown("**Palabras más falladas**")
+            if quiz_stats["palabras_falladas"]:
+                df_fall = pd.DataFrame(quiz_stats["palabras_falladas"])
+                fig_fall = px.bar(df_fall, x="fallos", y="palabra", orientation="h",
+                                  labels={"fallos": "Veces fallada", "palabra": "Palabra"},
+                                  color="fallos", color_continuous_scale="reds")
+                fig_fall.update_layout(yaxis={"categoryorder": "total ascending"})
+                st.plotly_chart(fig_fall, use_container_width=True)
+            else:
+                st.info("Sin errores registrados aún.")
+    else:
+        st.info("ℹ️ No hay respuestas de quiz registradas todavía. "
+                "Usá el 🧩 Quiz para que aparezcan las estadísticas.")
+
+    st.markdown("---")
+
     # ── ÚLTIMAS CONSULTAS ────────────────────────────────────────────
     st.subheader("📋 Últimas consultas registradas")
     try:
@@ -248,6 +391,15 @@ def mostrar_dashboard():
                 "tiempo_ms":      "Tiempo (ms)",
             }, inplace=True)
             st.dataframe(df_mostrar, use_container_width=True, hide_index=True)
+            # Exportar a CSV
+            csv_bytes = df_mostrar.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label="📥 Exportar últimas consultas (CSV)",
+                data=csv_bytes,
+                file_name=f"consultas_profebot_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+                mime="text/csv",
+                help="Descargá las últimas consultas en formato CSV",
+            )
         else:
             st.info("No hay consultas registradas aún.")
     except Exception as e:

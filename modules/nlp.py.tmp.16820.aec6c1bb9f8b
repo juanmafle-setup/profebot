@@ -96,4 +96,4 @@ def procesar(texto):
         if sigla.lower() not in [e[0].lower() for e in entidades]:
             entidades.append((sigla, "SIGLA"))
 
-    return {"entidades": entidades, "pos_tags": pos_tags}
+    return {"entidades": entidades}

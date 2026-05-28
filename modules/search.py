@@ -1,3 +1,4 @@
+import os
 import threading
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -16,12 +17,18 @@ def _cargar_indice():
     if _vectorizer is not None:
         return
     with _lock:
-        # Double-checked locking: re-test inside the lock to avoid a race where
-        # two concurrent calls both see None and both rebuild the index.
         if _vectorizer is None:
-            with open("data/corpus.txt", "r", encoding="utf-8") as f:
+            corpus_path = "data/corpus.txt"
+            if not os.path.exists(corpus_path):
+                raise FileNotFoundError(
+                    f"No se encontró el corpus en '{corpus_path}'. "
+                    "Verificá que el archivo exista antes de iniciar la app."
+                )
+            with open(corpus_path, "r", encoding="utf-8") as f:
                 _documentos = [l for l in f
                                if l.strip() and not l.strip().startswith("#")]
+            if not _documentos:
+                raise ValueError("El corpus está vacío o solo contiene comentarios.")
             _vectorizer = TfidfVectorizer()
             _X          = _vectorizer.fit_transform(_documentos)
 
