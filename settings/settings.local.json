@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Read(//c/Users/maxxi/**)",
-      "Bash(python -c ' *)"
-    ]
-  }
-}
