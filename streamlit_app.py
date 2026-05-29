@@ -101,6 +101,22 @@ _STOPWORDS_QUIZ = {"de", "la", "el", "en", "y", "a", "con", "que", "es",
                    "al", "su", "como", "si", "no", "o", "e", "u"}
 
 
+def _extraer_palabra_quiz(texto):
+    """
+    Extrae la palabra más probable de una transcripción de voz para el quiz.
+
+    Toma el ÚLTIMO token significativo (no stopword, longitud > 3) porque cuando
+    el usuario dice 'creo que es perplejidad', la respuesta viene al final.
+    Si no hay candidatos, devuelve la última palabra de la transcripción.
+    """
+    texto_limpio = re.sub(r'[^a-záéíóúñü\s]', '', texto.lower()).strip()
+    tokens = texto_limpio.split()
+    candidatos = [t for t in tokens if t not in _STOPWORDS_QUIZ and len(t) > 3]
+    if candidatos:
+        return candidatos[-1]
+    return tokens[-1] if tokens else ""
+
+
 # ── FUNCIONES DE BÚSQUEDA / RESPUESTA ──────────────────────────────────────
 
 def _extraer_termino(query):
@@ -852,6 +868,7 @@ elif vista == "🧩 Quiz":
         ("quiz_total", 0), ("quiz_feedback", None),
         ("quiz_input_key", 0), ("quiz_racha", 0),
         ("quiz_racha_max", 0), ("quiz_numero", 0),
+        ("quiz_voz_texto", None),
     ]:
         if key not in st.session_state:
             st.session_state[key] = val
@@ -877,6 +894,7 @@ elif vista == "🧩 Quiz":
         st.session_state.quiz_feedback   = None
         st.session_state.quiz_input_key += 1
         st.session_state.quiz_numero    += 1
+        st.session_state.quiz_voz_texto  = None
 
     if st.session_state.quiz_oracion is None:
         nueva_pregunta()
@@ -941,68 +959,105 @@ elif vista == "🧩 Quiz":
         sim  = fb.get("similitud")
         _sim_str = f" — similitud coseno: **{sim:.2f}**" if sim is not None else ""
         _oracion_marcada = st.session_state.quiz_oracion.replace("___", f"**{corr}**")
+        # Mostrar transcripción de voz si se respondió por voz
+        if st.session_state.get("quiz_voz_texto"):
+            st.info(f"🎙️ Escuché: **{st.session_state.quiz_voz_texto}**")
         if tipo == "correcto":
             st.success(f"✅ ¡Correcto! La palabra era: **{corr}**{_sim_str}\n\n📖 {_oracion_marcada}")
         else:
             st.error(f"❌ Incorrecto. La respuesta era: **{corr}**{_sim_str}\n\n📖 {_oracion_marcada}")
 
     # ── Input + botones ────────────────────────────────────────────
+
+    def _verificar_respuesta_quiz(usuario, voz_texto=None):
+        """Lógica de verificación compartida entre texto y voz."""
+        usuario = usuario.lower().strip().rstrip(".,;:")
+        if not usuario:
+            return False
+        correcta = st.session_state.quiz_palabra
+        oracion  = st.session_state.quiz_oracion
+        similitud = similitud_respuesta_quiz(oracion, correcta, usuario)
+        st.session_state.quiz_total     += 1
+        st.session_state.quiz_respondida = True
+        st.session_state.quiz_voz_texto  = voz_texto  # None si fue por texto
+        if usuario == correcta:
+            tipo = "correcto"
+            st.session_state.quiz_correctas += 1
+            st.session_state.quiz_racha     += 1
+            st.session_state.quiz_racha_max  = max(
+                st.session_state.quiz_racha_max,
+                st.session_state.quiz_racha,
+            )
+        else:
+            tipo = "incorrecto"
+            st.session_state.quiz_racha = 0
+        st.session_state.quiz_feedback = {
+            "tipo":      tipo,
+            "correcta":  correcta,
+            "similitud": similitud,
+        }
+        guardar_resultado_quiz({
+            "estudiante_id":     st.session_state.estudiante,
+            "oracion":           oracion,
+            "palabra_correcta":  correcta,
+            "respuesta_usuario": usuario,
+            "es_correcto":       1 if tipo == "correcto" else 0,
+            "tipo_resultado":    tipo,
+            "similitud":         similitud,
+        })
+        return True
+
     if not st.session_state.quiz_respondida:
         respuesta_quiz = st.text_input(
             "Escribí la palabra que falta",
             key=f"quiz_input_{st.session_state.quiz_input_key}",
             placeholder="Tu respuesta...",
         )
-        col_v, col_s = st.columns([5, 1])
+
+        # Botón de micrófono (ocupa columna izquierda)
+        col_mic_q, col_v, col_s = st.columns([2, 4, 1])
+        with col_mic_q:
+            mic_quiz_btn = st.button(
+                "🎤 Responder por voz",
+                use_container_width=True,
+                help="Grabá tu respuesta con el micrófono (5 segundos)",
+            )
         with col_v:
-            if st.button("✅  Verificar respuesta", use_container_width=True):
-                usuario = respuesta_quiz.lower().strip().rstrip(".,;:")
-                if not usuario:
-                    st.warning("⚠️ Escribí algo antes de verificar.")
-                else:
-                    correcta = st.session_state.quiz_palabra
-                    oracion  = st.session_state.quiz_oracion
-
-                    # Similitud coseno entre oración con respuesta correcta vs usuario
-                    similitud = similitud_respuesta_quiz(oracion, correcta, usuario)
-
-                    st.session_state.quiz_total     += 1
-                    st.session_state.quiz_respondida = True
-
-                    if usuario == correcta:
-                        tipo = "correcto"
-                        st.session_state.quiz_correctas += 1
-                        st.session_state.quiz_racha     += 1
-                        st.session_state.quiz_racha_max  = max(
-                            st.session_state.quiz_racha_max,
-                            st.session_state.quiz_racha,
-                        )
-                    else:
-                        tipo = "incorrecto"
-                        st.session_state.quiz_racha = 0
-
-                    st.session_state.quiz_feedback = {
-                        "tipo":      tipo,
-                        "correcta":  correcta,
-                        "similitud": similitud,
-                    }
-
-                    # Persistir resultado en la base de datos
-                    guardar_resultado_quiz({
-                        "estudiante_id":    st.session_state.estudiante,
-                        "oracion":          oracion,
-                        "palabra_correcta": correcta,
-                        "respuesta_usuario": usuario,
-                        "es_correcto":      1 if tipo == "correcto" else 0,
-                        "tipo_resultado":   tipo,
-                        "similitud":        similitud,
-                    })
-
-                    st.rerun()
+            verificar_btn = st.button("✅  Verificar respuesta", use_container_width=True)
         with col_s:
-            if st.button("🎲", use_container_width=True, help="Saltar esta pregunta"):
-                nueva_pregunta()
-                st.rerun()
+            skip_btn = st.button("🎲", use_container_width=True, help="Saltar esta pregunta")
+
+        # ── Manejo de micrófono ────────────────────────────────────
+        if mic_quiz_btn:
+            with st.spinner("🎙️ Escuchando... hablá ahora (5 segundos)"):
+                try:
+                    audio_path = grabar_audio()
+                    if audio_path and os.path.exists(audio_path):
+                        texto_voz = transcribir(audio_path)
+                        os.remove(audio_path)
+                        if texto_voz.strip():
+                            palabra_voz = _extraer_palabra_quiz(texto_voz)
+                            if _verificar_respuesta_quiz(palabra_voz, voz_texto=texto_voz.strip()):
+                                st.rerun()
+                        else:
+                            st.warning("⚠️ No se detectó voz. Intentá de nuevo hablando más cerca del micrófono.")
+                    else:
+                        st.error("❌ No se pudo grabar el audio. Verificá que el micrófono esté conectado.")
+                except Exception as e:
+                    st.error(f"❌ Error al grabar o transcribir: {e}")
+
+        # ── Manejo de texto ────────────────────────────────────────
+        if verificar_btn:
+            if not respuesta_quiz.strip():
+                st.warning("⚠️ Escribí algo antes de verificar.")
+            else:
+                if _verificar_respuesta_quiz(respuesta_quiz, voz_texto=None):
+                    st.rerun()
+
+        if skip_btn:
+            nueva_pregunta()
+            st.rerun()
+
     else:
         if st.button("➡️  Siguiente pregunta", use_container_width=True, type="primary"):
             nueva_pregunta()
